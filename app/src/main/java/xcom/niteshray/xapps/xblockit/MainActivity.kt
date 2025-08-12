@@ -14,15 +14,9 @@ import androidx.navigation.compose.rememberNavController
 import xcom.niteshray.xapps.xblockit.ui.Screens.MainScreen.MainScreen
 import xcom.niteshray.xapps.xblockit.ui.Screens.SplashScreen
 import xcom.niteshray.xapps.xblockit.ui.theme.BlockitTheme
-import android.provider.Settings
-import android.accessibilityservice.AccessibilityService
-import android.content.Intent
-import android.net.Uri
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import xcom.niteshray.xapps.xblockit.ui.Screens.FocusScreen
-import xcom.niteshray.xapps.xblockit.ui.Screens.PermissionScreen
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,9 +34,6 @@ class MainActivity : ComponentActivity() {
         NavHost(navController = navController , startDestination = "splash"){
             composable("splash"){
                 SplashScreen(navController)
-            }
-            composable("permission"){
-                PermissionScreen(navController)
             }
             composable(route = "main"){
                 MainScreen(navController)

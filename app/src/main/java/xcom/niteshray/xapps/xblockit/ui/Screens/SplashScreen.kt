@@ -20,18 +20,11 @@ import xcom.niteshray.xapps.xblockit.util.BlockSharedPref
 
 @Composable
 fun SplashScreen(navController: NavController){
-    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
-        delay(1000)
-        if (isAccessibilityServiceEnabled(context, BlockAccessibility::class.java) && isIgnoringBatteryOptimizations(context)) {
-            navController.navigate("main"){
-                popUpTo("splash"){inclusive = true}
-            }
-        }else{
-            BlockSharedPref(context = context).setBlock(false)
-            navController.navigate("permission"){
-                popUpTo("splash"){inclusive = true}
-            }
+        delay(2000)
+        navController.navigate("main"){
+            popUpTo("splash"){inclusive = true}
         }
     }
     Box(
