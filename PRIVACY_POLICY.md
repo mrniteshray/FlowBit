@@ -1,6 +1,6 @@
 # Privacy Policy for Blockit
 
-_Last updated: [12-07-2025]_
+_Last updated: [24-08-2025]_
 
 Welcome to **Blockit**!  
 Your privacy is important to us. This policy explains how Blockit handles permissions and data to keep your experience safe, transparent, and focused.
@@ -24,9 +24,6 @@ To offer core features that help users stay focused, Blockit requests the follow
 
 - **Usage Access:**  
   Required to identify which apps are running so they can be blocked if needed.
-
-- **Draw Over Other Apps (Overlay):**  
-  Used for the Focus Mode to show a blocking screen during selected time periods.
 
 - **Battery Optimization Exemption:**  
   Required to allow Blockit to run uninterrupted in the background for real-time blocking.
