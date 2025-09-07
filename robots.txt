@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mrniteshray.github.io/Blockit/sitemap.xml
