@@ -13,8 +13,8 @@ android {
         applicationId = "xcom.niteshray.xapps.xblockit"
         minSdk = 24
         targetSdk = 35
-        versionCode = 10
-        versionName = "1.2.7"
+        versionCode = 18
+        versionName = "1.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -168,7 +168,7 @@ fun MainScreen(navController: NavController){
                                 onClick = {
                                     showPrivacyDialog = false
                                     val uri =
-                                        "https://mrniteshray.github.io/Blockit/PRIVACY_POLICY"
+                                        "https://mrniteshray.github.io/Privacy-Policy/BLOCKIT"
                                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
                                     context.startActivity(intent)
                                 },
@@ -212,7 +212,7 @@ fun MainScreen(navController: NavController){
 
             NavHost(navController = innerNavControlller , startDestination = "home"){
                 composable("home"){
-                    HomeScreen(navController)
+                    HomeScreen()
                 }
                 composable("app"){
                     AppScreen()

@@ -56,6 +56,7 @@ import xcom.niteshray.xapps.xblockit.util.BlockAccessibility
 import xcom.niteshray.xapps.xblockit.util.BlockSharedPref
 import xcom.niteshray.xapps.xblockit.util.CheckPermissions.isAccessibilityServiceEnabled
 import xcom.niteshray.xapps.xblockit.util.CheckPermissions.isIgnoringBatteryOptimizations
+import xcom.niteshray.xapps.xblockit.util.CheckPermissions.isNotificationPermissionGranted
 import xcom.niteshray.xapps.xblockit.util.NotificationHelper
 import xcom.niteshray.xapps.xblockit.util.PauseTimeService
 
@@ -74,6 +75,7 @@ fun HomeScreen() {
 
     var showAccessibilityPermissionSheet by remember { mutableStateOf(false) }
     var showBatteryPermissionSheet by remember { mutableStateOf(false) }
+    var showNotificationPermissionSheet by remember { mutableStateOf(false) }
 
     Column(
             modifier = Modifier
@@ -122,6 +124,9 @@ fun HomeScreen() {
                     if (!isIgnoringBatteryOptimizations(context) && !showAccessibilityPermissionSheet){
                         showBatteryPermissionSheet = true
                     }
+                    if (!isNotificationPermissionGranted(context) && !showAccessibilityPermissionSheet && !showBatteryPermissionSheet){
+                        showNotificationPermissionSheet = true
+                    }
                 },
                 onPauseClick = { minutes ->
                     val intent = Intent(context, PauseTimeService::class.java)
@@ -146,15 +151,25 @@ fun HomeScreen() {
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         }
                     )
+                    if (!isIgnoringBatteryOptimizations(context)){
+                        showBatteryPermissionSheet = true
+                    } else if (!isNotificationPermissionGranted(context)){
+                        showNotificationPermissionSheet = true
+                    }
                 },
                 onDeny = {
                     showAccessibilityPermissionSheet = false
                     Toast.makeText(context, "You can enable accessibility later from settings", Toast.LENGTH_SHORT).show()
+                    if (!isIgnoringBatteryOptimizations(context)){
+                        showBatteryPermissionSheet = true
+                    } else if (!isNotificationPermissionGranted(context)){
+                        showNotificationPermissionSheet = true
+                    }
                 },
                 onPrivacyPolicyClick = {
                     val intent = Intent(
                         Intent.ACTION_VIEW,
-                        Uri.parse("https://mrniteshray.github.io/Blockit/PRIVACY_POLICY")
+                        Uri.parse("https://mrniteshray.github.io/Privacy-Policy/BLOCKIT")
                     )
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     context.startActivity(intent)
@@ -166,9 +181,26 @@ fun HomeScreen() {
         BatteryOptimizationPermissionBottomSheet(
             onAllow = {
                 showBatteryPermissionSheet = false
+                if (!isNotificationPermissionGranted(context)){
+                    showNotificationPermissionSheet = true
+                }
             },
             onDeny = {
                 showBatteryPermissionSheet = false
+                if (!isNotificationPermissionGranted(context)){
+                    showNotificationPermissionSheet = true
+                }
+            }
+        )
+    }
+
+    if (showNotificationPermissionSheet){
+        NotificationPermissionBottomSheet(
+            onAllow = {
+                showNotificationPermissionSheet = false
+            },
+            onDeny = {
+                showNotificationPermissionSheet = false
             }
         )
     }

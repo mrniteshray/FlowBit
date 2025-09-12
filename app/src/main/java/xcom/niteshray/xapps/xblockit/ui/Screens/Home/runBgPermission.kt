@@ -95,3 +95,75 @@ fun BatteryOptimizationPermissionBottomSheet(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NotificationPermissionBottomSheet(
+    onAllow: () -> Unit,
+    onDeny: () -> Unit
+) {
+    val context = LocalContext.current
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+
+    ModalBottomSheet(
+        onDismissRequest = { onDeny() },
+        containerColor = Color(0xFF1C1C1E),
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Title
+            Text(
+                text = "Enable Notifications",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Blue,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Description
+            Text(
+                text = "We need notification permission to show you helpful alerts when distracting apps are blocked and keep you motivated on your focus journey.",
+                fontSize = 16.sp,
+                color = Color.Gray,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Allow button
+            GradientButton(
+                text = "Allow Notifications",
+                modifier = Modifier.fillMaxWidth(0.7f)
+            ) {
+                try {
+                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                        putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    context.startActivity(intent)
+                    onAllow()
+                } catch (e: ActivityNotFoundException) {
+                    onAllow()
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Deny button
+            TextButton(onClick = onDeny) {
+                Text("Skip", color = Color.White)
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
