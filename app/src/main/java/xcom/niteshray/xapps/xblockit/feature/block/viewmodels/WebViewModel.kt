@@ -1,4 +1,4 @@
-package xcom.niteshray.xapps.xblockit.ui.Screens.Web
+package xcom.niteshray.xapps.xblockit.feature.block.viewmodels
 
 import android.app.Application
 import androidx.compose.runtime.mutableStateListOf

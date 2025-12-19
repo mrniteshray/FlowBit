@@ -1,16 +1,16 @@
-package xcom.niteshray.xapps.xblockit.ui.Screens.Home
+package xcom.niteshray.xapps.xblockit.feature.block.components
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -18,13 +18,11 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import xcom.niteshray.xapps.xblockit.ui.theme.Blue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +37,7 @@ fun BatteryOptimizationPermissionBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = { onDeny() },
-        containerColor = Color(0xFF1C1C1E),
+        containerColor = MaterialTheme.colorScheme.surface,
         sheetState = sheetState
     ) {
         Column(
@@ -53,7 +51,7 @@ fun BatteryOptimizationPermissionBottomSheet(
                 text = "Keep App Running in Background",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Blue,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
 
@@ -63,7 +61,7 @@ fun BatteryOptimizationPermissionBottomSheet(
             Text(
                 text = "To keep blocking distractions in real time, we need to stay active in the background.",
                 fontSize = 16.sp,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
 
@@ -75,9 +73,10 @@ fun BatteryOptimizationPermissionBottomSheet(
                 modifier = Modifier.fillMaxWidth(0.7f)
             ) {
                 try {
-                    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                        data = Uri.parse("package:${context.packageName}")
-                    }
+                    val intent =
+                        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                            data = Uri.parse("package:${context.packageName}")
+                        }
                     context.startActivity(intent)
                     onAllow()
                 } catch (e: ActivityNotFoundException) {
@@ -88,7 +87,7 @@ fun BatteryOptimizationPermissionBottomSheet(
 
             // Deny button
             TextButton(onClick = onDeny) {
-                Text("Deny", color = Color.White)
+                Text("Deny", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -109,7 +108,7 @@ fun NotificationPermissionBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = { onDeny() },
-        containerColor = Color(0xFF1C1C1E),
+        containerColor = MaterialTheme.colorScheme.surface,
         sheetState = sheetState
     ) {
         Column(
@@ -123,7 +122,7 @@ fun NotificationPermissionBottomSheet(
                 text = "Enable Notifications",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Blue,
+                color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center
             )
 
@@ -133,7 +132,7 @@ fun NotificationPermissionBottomSheet(
             Text(
                 text = "We need notification permission to show you helpful alerts when distracting apps are blocked and keep you motivated on your focus journey.",
                 fontSize = 16.sp,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
 
@@ -160,7 +159,7 @@ fun NotificationPermissionBottomSheet(
 
             // Deny button
             TextButton(onClick = onDeny) {
-                Text("Skip", color = Color.White)
+                Text("Skip", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             Spacer(modifier = Modifier.height(8.dp))

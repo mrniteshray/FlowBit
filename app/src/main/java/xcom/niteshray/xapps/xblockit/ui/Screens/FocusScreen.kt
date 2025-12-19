@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import xcom.niteshray.xapps.xblockit.ui.theme.gray
+import xcom.niteshray.xapps.xblockit.ui.theme.*
 
 @Composable
 fun FocusScreen(duration: Int, onExit: () -> Boolean) {
@@ -83,7 +84,7 @@ fun FocusScreen(duration: Int, onExit: () -> Boolean) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black),
+                .background(androidx.compose.material3.MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
         ) {
             val minutes = timeLeft / 60
@@ -100,7 +101,10 @@ fun FocusScreen(duration: Int, onExit: () -> Boolean) {
                         modifier = Modifier
                             .background(
                                 brush = Brush.linearGradient(
-                                    colors = listOf(Color(0xFF009AEE), Color(0xFF00C6FF))
+                                    colors = listOf(
+                                        androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                                        androidx.compose.material3.MaterialTheme.colorScheme.secondary
+                                    )
                                 ),
                                 shape = RoundedCornerShape(14.dp)
                             )
@@ -109,7 +113,7 @@ fun FocusScreen(duration: Int, onExit: () -> Boolean) {
                         Text(
                             text = String.format("%02d", minutes),
                             fontSize = 180.sp,
-                            color = Color.White,
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -117,7 +121,7 @@ fun FocusScreen(duration: Int, onExit: () -> Boolean) {
                     Text(
                         text = ":",
                         fontSize = 180.sp,
-                        color = Color.White,
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.width(20.dp))
@@ -125,7 +129,10 @@ fun FocusScreen(duration: Int, onExit: () -> Boolean) {
                         modifier = Modifier
                             .background(
                                 brush = Brush.linearGradient(
-                                    colors = listOf(Color(0xFF009AEE), Color(0xFF00C6FF))
+                                    colors = listOf(
+                                        androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                                        androidx.compose.material3.MaterialTheme.colorScheme.secondary
+                                    )
                                 ),
                                 shape = RoundedCornerShape(14.dp)
                             )
@@ -134,7 +141,7 @@ fun FocusScreen(duration: Int, onExit: () -> Boolean) {
                         Text(
                             text = String.format("%02d", seconds),
                             fontSize = 180.sp,
-                            color = Color.White,
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -143,7 +150,7 @@ fun FocusScreen(duration: Int, onExit: () -> Boolean) {
                 Text(
                     text = "Time is yours. Use it well",
                     fontSize = 24.sp,
-                    color = Color.White,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold
                 )

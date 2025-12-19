@@ -1,9 +1,8 @@
-package xcom.niteshray.xapps.xblockit.ui.Screens.App
+package xcom.niteshray.xapps.xblockit.feature.block.viewmodels
 
 import android.app.Application
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

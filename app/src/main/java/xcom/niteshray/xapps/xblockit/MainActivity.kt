@@ -1,9 +1,6 @@
 package xcom.niteshray.xapps.xblockit
 
-import android.content.ComponentName
-import android.content.Context
 import android.os.Bundle
-import android.text.TextUtils
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,12 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import xcom.niteshray.xapps.xblockit.ui.Screens.MainScreen.MainScreen
 import xcom.niteshray.xapps.xblockit.ui.Screens.SplashScreen
 import xcom.niteshray.xapps.xblockit.ui.theme.BlockitTheme
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import xcom.niteshray.xapps.xblockit.ui.Screens.FocusScreen
+import xcom.niteshray.xapps.xblockit.feature.MainScreen.MainScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

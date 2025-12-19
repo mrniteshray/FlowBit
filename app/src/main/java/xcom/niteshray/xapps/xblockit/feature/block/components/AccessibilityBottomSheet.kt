@@ -1,4 +1,4 @@
-package xcom.niteshray.xapps.xblockit.ui.Screens.Home
+package xcom.niteshray.xapps.xblockit.feature.block.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -22,12 +23,10 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import xcom.niteshray.xapps.xblockit.ui.theme.Blue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +40,7 @@ fun AccessibilityPermissionBottomSheet(
     )
     ModalBottomSheet(
         onDismissRequest = { onDeny() },
-        containerColor = Color(0xFF1C1F26),
+        containerColor = MaterialTheme.colorScheme.surface,
         sheetState = sheetState
     ) {
         Column(
@@ -53,10 +52,11 @@ fun AccessibilityPermissionBottomSheet(
             // Title
             Text(
                 text = "Accessibility Permission Required",
-                color = Color.White,
-                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                lineHeight = 28.sp
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -64,9 +64,10 @@ fun AccessibilityPermissionBottomSheet(
             // Description
             Text(
                 text = "Blockit requires Accessibility Service permission to detect and block distracting apps and websites in real-time. We do not collect or share your personal data. This permission is only used for providing the core focus features as described in our app. You can choose 'Deny' to continue without enabling this permission, but some features may not work. For more details, please review our privacy policy.",
-                color = Color(0xFFB0B0B0),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 14.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                lineHeight = 20.sp
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -82,12 +83,12 @@ fun AccessibilityPermissionBottomSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
-                        .background(Color(0xFF2A2E39), RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
                         .padding(vertical = 8.dp, horizontal = 12.dp)
                 ) {
                     Text(
                         text = "${index + 1}.  $item",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -98,7 +99,7 @@ fun AccessibilityPermissionBottomSheet(
 
             Text(
                 text = "Blockit is 100% secure and DOES NOT monitor/collect any personal data.",
-                color = Color(0xFF00FF6A),
+                color = MaterialTheme.colorScheme.tertiary,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center,
@@ -109,7 +110,7 @@ fun AccessibilityPermissionBottomSheet(
 
             Text(
                 text = "View our privacy policy for details.",
-                color = Blue,
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.clickable { onPrivacyPolicyClick() },
@@ -125,19 +126,33 @@ fun AccessibilityPermissionBottomSheet(
             ) {
                 OutlinedButton(
                     onClick = onDeny,
-                    shape = RoundedCornerShape(50),
-                    border = BorderStroke(1.dp, Color.White),
-                    modifier = Modifier.weight(1f)
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.outline),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp)
                 ) {
-                    Text("Deny", color = Color.White)
+                    Text(
+                        "Deny",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
                 Button(
                     onClick = onAllow,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081)),
-                    shape = RoundedCornerShape(50),
-                    modifier = Modifier.weight(1f)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp)
                 ) {
-                    Text("Allow", color = Color.White)
+                    Text(
+                        "Allow",
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
 

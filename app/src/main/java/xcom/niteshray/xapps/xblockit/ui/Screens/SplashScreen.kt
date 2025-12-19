@@ -17,6 +17,8 @@ import kotlinx.coroutines.delay
 import xcom.niteshray.xapps.xblockit.ui.theme.Black
 import xcom.niteshray.xapps.xblockit.util.BlockAccessibility
 import xcom.niteshray.xapps.xblockit.util.BlockSharedPref
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun SplashScreen(navController: NavController){
@@ -30,12 +32,19 @@ fun SplashScreen(navController: NavController){
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Black),
+            .background(
+                brush = Brush.verticalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary
+                    )
+                )
+            ),
         contentAlignment = Alignment.Center
     ){
-        Text(text = "Blockit",
+        Text(text = "DoHard",
             fontSize = 32.sp ,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontWeight = FontWeight.Bold
         )
     }

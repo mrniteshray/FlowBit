@@ -1,4 +1,4 @@
-package xcom.niteshray.xapps.xblockit.ui.Screens.Home
+package xcom.niteshray.xapps.xblockit.feature.block.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -23,19 +23,23 @@ fun GradientButton(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(14.dp))
             .background(
                 brush = Brush.horizontalGradient(
-                    listOf(Color(0xFF009AEE), Color(0xFF00C6FF))
+                    listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary
+                    )
                 )
             )
             .clickable() { onClick() }
-            .padding(vertical = 12.dp, horizontal = 24.dp)
+            .padding(vertical = 14.dp, horizontal = 28.dp)
     ) {
         Text(
             text = text,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.SemiBold,
             modifier = Modifier.align(Alignment.Center)
         )
     }
