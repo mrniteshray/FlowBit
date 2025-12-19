@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found | Blockit</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            text-align: center;
+        }
+        
+        .error-content h1 {
+            font-size: 6rem;
+            color: #4ecdc4;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .error-content h2 {
+            font-size: 2rem;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+        
+        .error-content p {
+            font-size: 1.2rem;
+            color: #cccccc;
+            margin-bottom: 40px;
+            max-width: 500px;
+        }
+        
+        .error-emoji {
+            font-size: 4rem;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-page">
+        <div class="container">
+            <div class="error-content">
+                <div class="error-emoji">🚫</div>
+                <h1>404</h1>
+                <h2>Page Not Found</h2>
+                <p>Looks like this page got blocked! The page you're looking for doesn't exist or has been moved.</p>
+                
+                <div class="cta-buttons">
+                    <a href="index.html" class="btn btn-primary">🏠 Go Home</a>
+                    <a href="https://github.com/mrniteshray/Blockit" class="btn btn-secondary" target="_blank">📱 View App</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some fun animation to the 404 emoji
+        document.addEventListener('DOMContentLoaded', function() {
+            const emoji = document.querySelector('.error-emoji');
+            let rotation = 0;
+            
+            setInterval(() => {
+                rotation += 10;
+                emoji.style.transform = `rotate(${rotation}deg)`;
+            }, 100);
+        });
+    </script>
+</body>
+</html>
