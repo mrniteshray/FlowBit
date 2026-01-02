@@ -21,11 +21,31 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // ═══════════════════════════════════════════════════════════════
+            // 🚀 PRODUCTION OPTIMIZATIONS
+            // ═══════════════════════════════════════════════════════════════
+            
+            // Enable code shrinking, obfuscation, and optimization
+            isMinifyEnabled = true
+            isShrinkResources = true
+            
+            // Use ProGuard rules for code optimization
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            
+            // Debuggable disabled for release builds
+            isDebuggable = false
+            
+            // Enable R8 full mode for better optimization
+            // R8 is enabled by default in newer AGP versions
+        }
+        debug {
+            // Debug build optimizations
+            isMinifyEnabled = false
+            isDebuggable = true
+            versionNameSuffix = "-DEBUG"
         }
     }
     compileOptions {

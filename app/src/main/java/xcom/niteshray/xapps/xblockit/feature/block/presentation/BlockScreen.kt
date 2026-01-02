@@ -76,7 +76,7 @@ fun BlockScreen(
     val context2 = LocalContext.current
 
     Scaffold(
-        containerColor = Color(0xFF0A0A0A)
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -96,7 +96,7 @@ fun BlockScreen(
                         text = "Blocks",
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
@@ -114,13 +114,13 @@ fun BlockScreen(
                         text = "Block Apps",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onBackground
                     )
 
                     TextButton(
                         onClick = { showAddAppsBottomSheet = true },
                         colors = ButtonDefaults.textButtonColors(
-                            contentColor = Color(0xFF4CAF50)
+                            contentColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
                         Icon(
@@ -148,7 +148,7 @@ fun BlockScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
-                            color = Color(0xFF4CAF50),
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(40.dp)
                         )
                     }
@@ -178,7 +178,7 @@ fun BlockScreen(
                     text = "Block Shorts",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
                 )
             }
@@ -190,7 +190,7 @@ fun BlockScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 6.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFF1A1A1A))
+                        .background(MaterialTheme.colorScheme.surface)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -204,12 +204,12 @@ fun BlockScreen(
                                 text = "Enable Shorts Blocking",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = Color.White
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = "Block all short-form content",
                                 fontSize = 13.sp,
-                                color = Color(0xFF888888),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                         }
@@ -235,10 +235,10 @@ fun BlockScreen(
                                 }
                             },
                             colors = SwitchDefaults.colors(
-                                checkedThumbColor = Color(0xFF4CAF50),
-                                checkedTrackColor = Color(0xFF2D5A2F),
-                                uncheckedThumbColor = Color(0xFF666666),
-                                uncheckedTrackColor = Color(0xFF2A2A2A)
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
                             )
                         )
                     }
@@ -268,7 +268,7 @@ fun BlockScreen(
                     text = "Other blocks",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
                 )
             }
@@ -402,7 +402,7 @@ fun ModernBlockedAppItem(
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 6.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFF1A1A1A))
+            .background(MaterialTheme.colorScheme.surface)
             .clickable { /* Navigate to app details */ }
     ) {
         Column(
@@ -429,12 +429,12 @@ fun ModernBlockedAppItem(
                         text = app.name,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "2h 12m spent / 2h",
                         fontSize = 13.sp,
-                        color = Color(0xFF888888),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
@@ -446,7 +446,7 @@ fun ModernBlockedAppItem(
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Remove",
-                        tint = Color(0xFFFF5252),
+                        tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -460,20 +460,20 @@ fun ModernBlockedAppItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFF0F0F0F))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f))
                     .padding(horizontal = 12.dp, vertical = 8.dp)
             ) {
                 Box(
                     modifier = Modifier
                         .size(8.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF4CAF50))
+                        .background(MaterialTheme.colorScheme.tertiary)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Blocking",
                     fontSize = 13.sp,
-                    color = Color(0xFF4CAF50),
+                    color = MaterialTheme.colorScheme.tertiary,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -481,7 +481,6 @@ fun ModernBlockedAppItem(
     }
 }
 
-// Short Platform Item (YouTube Shorts, IG Reels, etc)
 @Composable
 fun ShortPlatformItem(platform: ShortPlatform) {
     Box(
@@ -489,7 +488,7 @@ fun ShortPlatformItem(platform: ShortPlatform) {
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 6.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFF1A1A1A))
+            .background(MaterialTheme.colorScheme.surface)
             .clickable { /* Toggle block */ }
     ) {
         Row(
@@ -512,7 +511,7 @@ fun ShortPlatformItem(platform: ShortPlatform) {
                     text = platform.name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -531,7 +530,7 @@ fun OtherBlockItem(
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 6.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFF1A1A1A))
+            .background(MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick)
     ) {
         Row(
@@ -544,13 +543,13 @@ fun OtherBlockItem(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFF2A2A2A)),
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = title,
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -562,12 +561,12 @@ fun OtherBlockItem(
                     text = title,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = if (isAdded) "Manage" else "Add block",
                     fontSize = 13.sp,
-                    color = Color(0xFF4CAF50),
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
@@ -589,7 +588,7 @@ fun AddAppsBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFF1A1A1A)
+        containerColor = MaterialTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier
@@ -600,7 +599,7 @@ fun AddAppsBottomSheet(
                 text = "Select Apps to Block",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -610,7 +609,7 @@ fun AddAppsBottomSheet(
                 placeholder = {
                     Text(
                         text = "Search apps...",
-                        color = Color(0xFF666666)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 modifier = Modifier
@@ -619,17 +618,17 @@ fun AddAppsBottomSheet(
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF4CAF50),
-                    unfocusedBorderColor = Color(0xFF333333),
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    cursorColor = Color(0xFF4CAF50)
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    cursorColor = MaterialTheme.colorScheme.primary
                 ),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search",
-                        tint = Color(0xFF666666)
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             )
@@ -677,7 +676,7 @@ fun AppItemInBottomSheet(app: Appitem, onAddClick: () -> Unit) {
         Text(
             text = app.name,
             fontSize = 16.sp,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f),
             maxLines = 1
         )
@@ -689,7 +688,7 @@ fun AppItemInBottomSheet(app: Appitem, onAddClick: () -> Unit) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Add",
-                tint = Color(0xFF4CAF50),
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
             )
         }

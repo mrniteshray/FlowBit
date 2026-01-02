@@ -9,80 +9,111 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
+// ═══════════════════════════════════════════════════════════════
+// 🌙 DARK MODE - OLED Optimized, Battery Efficient, Eye Comfort
+// ═══════════════════════════════════════════════════════════════
 private val DarkColorScheme = darkColorScheme(
-    primary = Primary,
-    onPrimary = TextInverse,
-    primaryContainer = PrimaryVariant,
-    onPrimaryContainer = TextInverse,
+    // Primary Colors
+    primary = DarkPrimary,
+    onPrimary = DarkTextOnPrimary,
+    primaryContainer = DarkPrimaryContainer,
+    onPrimaryContainer = DarkPrimary,
     
-    secondary = Secondary,
-    onSecondary = TextInverse,
-    secondaryContainer = SecondaryVariant,
-    onSecondaryContainer = TextInverse,
+    // Secondary Colors
+    secondary = DarkSecondary,
+    onSecondary = DarkTextOnPrimary,
+    secondaryContainer = DarkSecondaryContainer,
+    onSecondaryContainer = DarkSecondary,
     
+    // Tertiary (Success)
     tertiary = Success,
-    onTertiary = TextInverse,
-    tertiaryContainer = SuccessLight,
+    onTertiary = DarkTextOnPrimary,
+    tertiaryContainer = SuccessDark,
     onTertiaryContainer = Success,
     
+    // Error
     error = Error,
-    onError = TextInverse,
-    errorContainer = ErrorLight,
+    onError = DarkTextOnPrimary,
+    errorContainer = ErrorDark,
     onErrorContainer = Error,
     
-    background = Background,
-    onBackground = TextPrimary,
+    // Background
+    background = DarkBackground,
+    onBackground = DarkTextPrimary,
     
-    surface = Surface,
-    onSurface = TextPrimary,
-    surfaceVariant = SurfaceVariant,
-    onSurfaceVariant = TextSecondary,
+    // Surface
+    surface = DarkSurface,
+    onSurface = DarkTextPrimary,
+    surfaceVariant = DarkSurfaceVariant,
+    onSurfaceVariant = DarkTextSecondary,
+    surfaceTint = DarkPrimary,
     
-    outline = Border,
-    outlineVariant = Divider,
+    // Outlines
+    outline = DarkBorder,
+    outlineVariant = DarkDivider,
     
-    inverseSurface = TextPrimary,
-    inverseOnSurface = TextInverse,
-    inversePrimary = PrimaryLight
+    // Inverse
+    inverseSurface = LightSurface,
+    inverseOnSurface = LightTextPrimary,
+    inversePrimary = LightPrimary,
+    
+    // Scrim
+    scrim = Color.Black.copy(alpha = 0.8f)
 )
 
+// ═══════════════════════════════════════════════════════════════
+// ☀️ LIGHT MODE - Clean, Calm, Professional, Focus-Oriented
+// ═══════════════════════════════════════════════════════════════
 private val LightColorScheme = lightColorScheme(
-    primary = Primary,
-    onPrimary = TextInverse,
-    primaryContainer = PrimaryLight,
-    onPrimaryContainer = PrimaryVariant,
+    // Primary Colors
+    primary = LightPrimary,
+    onPrimary = LightTextOnPrimary,
+    primaryContainer = LightPrimaryContainer,
+    onPrimaryContainer = LightPrimaryVariant,
     
-    secondary = Secondary,
-    onSecondary = TextInverse,
-    secondaryContainer = SecondaryLight,
-    onSecondaryContainer = SecondaryVariant,
+    // Secondary Colors
+    secondary = LightSecondary,
+    onSecondary = LightTextOnPrimary,
+    secondaryContainer = LightSecondaryContainer,
+    onSecondaryContainer = LightSecondaryVariant,
     
+    // Tertiary (Success)
     tertiary = Success,
-    onTertiary = TextInverse,
+    onTertiary = LightTextOnPrimary,
     tertiaryContainer = SuccessLight,
     onTertiaryContainer = Success,
     
+    // Error
     error = Error,
-    onError = TextInverse,
+    onError = LightTextOnPrimary,
     errorContainer = ErrorLight,
     onErrorContainer = Error,
     
-    background = Background,
-    onBackground = TextPrimary,
+    // Background
+    background = LightBackground,
+    onBackground = LightTextPrimary,
     
-    surface = Surface,
-    onSurface = TextPrimary,
-    surfaceVariant = SurfaceVariant,
-    onSurfaceVariant = TextSecondary,
+    // Surface
+    surface = LightSurface,
+    onSurface = LightTextPrimary,
+    surfaceVariant = LightSurfaceVariant,
+    onSurfaceVariant = LightTextSecondary,
+    surfaceTint = LightPrimary,
     
-    outline = Border,
-    outlineVariant = Divider,
+    // Outlines
+    outline = LightBorder,
+    outlineVariant = LightDivider,
     
-    inverseSurface = TextPrimary,
-    inverseOnSurface = TextInverse,
-    inversePrimary = PrimaryLight
+    // Inverse
+    inverseSurface = DarkSurface,
+    inverseOnSurface = DarkTextPrimary,
+    inversePrimary = DarkPrimary,
+    
+    // Scrim
+    scrim = Color.Black.copy(alpha = 0.5f)
 )
 
 @Composable
