@@ -32,9 +32,6 @@
 - 🌐 **Website Blocking**  
   Add distracting websites and restrict them right from your device.
 
-- ⏳ **Focus Mode**  
-  ⏱️Set a time. Lock distractions.A clean screen to help you focus and get things done.
-
 - 🔔 **Notifications**  
   Gentle nudges to remind you blocking is active and you're in focus mode.
 
