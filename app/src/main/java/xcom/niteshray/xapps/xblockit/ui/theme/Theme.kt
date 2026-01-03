@@ -9,20 +9,24 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 // ═══════════════════════════════════════════════════════════════
-// 🌙 DARK MODE - OLED Optimized, Battery Efficient, Eye Comfort
+// 🌙 DARK MODE - Minimalistic Black & White (Default Theme)
 // ═══════════════════════════════════════════════════════════════
 private val DarkColorScheme = darkColorScheme(
-    // Primary Colors
+    // Primary Colors - Pure White
     primary = DarkPrimary,
     onPrimary = DarkTextOnPrimary,
     primaryContainer = DarkPrimaryContainer,
     onPrimaryContainer = DarkPrimary,
     
-    // Secondary Colors
+    // Secondary Colors - Gray tones
     secondary = DarkSecondary,
     onSecondary = DarkTextOnPrimary,
     secondaryContainer = DarkSecondaryContainer,
@@ -40,11 +44,11 @@ private val DarkColorScheme = darkColorScheme(
     errorContainer = ErrorDark,
     onErrorContainer = Error,
     
-    // Background
+    // Background - Pure Black
     background = DarkBackground,
     onBackground = DarkTextPrimary,
     
-    // Surface
+    // Surface - Near Black
     surface = DarkSurface,
     onSurface = DarkTextPrimary,
     surfaceVariant = DarkSurfaceVariant,
@@ -65,10 +69,10 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 // ═══════════════════════════════════════════════════════════════
-// ☀️ LIGHT MODE - Clean, Calm, Professional, Focus-Oriented
+// ☀️ LIGHT MODE - Inverted (Black on White) - Optional Fallback
 // ═══════════════════════════════════════════════════════════════
 private val LightColorScheme = lightColorScheme(
-    // Primary Colors
+    // Primary Colors - Pure Black
     primary = LightPrimary,
     onPrimary = LightTextOnPrimary,
     primaryContainer = LightPrimaryContainer,
@@ -80,7 +84,7 @@ private val LightColorScheme = lightColorScheme(
     secondaryContainer = LightSecondaryContainer,
     onSecondaryContainer = LightSecondaryVariant,
     
-    // Tertiary (Success)
+    // Tertiary
     tertiary = Success,
     onTertiary = LightTextOnPrimary,
     tertiaryContainer = SuccessLight,
@@ -92,7 +96,7 @@ private val LightColorScheme = lightColorScheme(
     errorContainer = ErrorLight,
     onErrorContainer = Error,
     
-    // Background
+    // Background - Pure White
     background = LightBackground,
     onBackground = LightTextPrimary,
     
@@ -118,19 +122,25 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun BlockitTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
+    // ALWAYS use dark theme - minimalistic black & white design
+    darkTheme: Boolean = true,
+    // Dynamic color disabled for consistent black & white design
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    // Always use dark color scheme for minimalistic black & white look
+    val colorScheme = DarkColorScheme
+    
+    // Set status bar to match our dark theme
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = PureBlack.toArgb()
+            window.navigationBarColor = PureBlack.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = false
         }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
     }
 
     MaterialTheme(

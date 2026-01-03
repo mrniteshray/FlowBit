@@ -54,10 +54,6 @@ fun MainScreen(navController: NavController){
 
     Scaffold(
         bottomBar = {
-            // ═══════════════════════════════════════════════════════════════
-            // 🎨 MODERN BOTTOM NAVIGATION - Material 3 Design
-            // Features: Smooth animations, indicator, elevated design
-            // ═══════════════════════════════════════════════════════════════
             NavigationBar(
                 modifier = Modifier
                     .fillMaxWidth()

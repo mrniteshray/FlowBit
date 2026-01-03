@@ -1,15 +1,10 @@
 package xcom.niteshray.xapps.xblockit.feature.tasks
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -36,11 +30,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import xcom.niteshray.xapps.xblockit.ui.theme.*
 
+// Priority now uses grayscale for minimalistic design
 enum class TaskPriority(val color: Color, val label: String, val icon: String) {
-    HIGH(Color(0xFFEF4444), "High", "🔴"),
-    MEDIUM(Color(0xFFFB923C), "Medium", "🟠"),
-    LOW(Color(0xFF10B981), "Low", "🟢")
+    HIGH(PureWhite, "High", "●"),
+    MEDIUM(MediumGray, "Medium", "◐"),
+    LOW(DimGray, "Low", "○")
 }
 
 enum class TaskCategory(val icon: String, val label: String) {
@@ -91,18 +87,11 @@ fun TasksScreen() {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Header Section
+        // Header Section - Clean black with white text
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-                        )
-                    )
-                )
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
                 .padding(top = 20.dp)
         ) {
@@ -116,21 +105,27 @@ fun TasksScreen() {
                         text = "My Tasks",
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, MMM d")),
                         fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.8f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 
-                // Add Task Button
+                // Add Task Button - White with shine
                 FloatingActionButton(
                     onClick = { showAddDialog = true },
-                    containerColor = Color.White,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(48.dp)
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .border(
+                            width = 1.dp,
+                            color = GlowWhite,
+                            shape = CircleShape
+                        )
                 ) {
                     Icon(Icons.Default.Add, "Add Task")
                 }
@@ -138,10 +133,15 @@ fun TasksScreen() {
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // Progress Card
+            // Progress Card with shine border
             Surface(
                 shape = RoundedCornerShape(16.dp),
-                color = Color.White.copy(alpha = 0.15f)
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = BorderGlow,
+                    shape = RoundedCornerShape(16.dp)
+                )
             ) {
                 Row(
                     modifier = Modifier
@@ -157,20 +157,20 @@ fun TasksScreen() {
                         CircularProgressIndicator(
                             progress = { 1f },
                             modifier = Modifier.fillMaxSize(),
-                            color = Color.White.copy(alpha = 0.3f),
+                            color = DarkBorder,
                             strokeWidth = 6.dp,
                         )
                         CircularProgressIndicator(
                             progress = { progress },
                             modifier = Modifier.fillMaxSize(),
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.primary,
                             strokeWidth = 6.dp,
                         )
                         Text(
                             text = "${(progress * 100).toInt()}%",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     
@@ -181,13 +181,13 @@ fun TasksScreen() {
                             text = "Today's Progress",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "$completedCount of $totalCount tasks completed",
                             fontSize = 14.sp,
-                            color = Color.White.copy(alpha = 0.8f)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -344,10 +344,13 @@ fun FilterChip(
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = backgroundColor,
-        modifier = Modifier.clickable(onClick = onClick),
-        border = if (!isSelected) androidx.compose.foundation.BorderStroke(
-            1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-        ) else null
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .border(
+                width = 1.dp,
+                color = if (isSelected) GlowWhite else BorderGlow,
+                shape = RoundedCornerShape(20.dp)
+            )
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
@@ -386,7 +389,12 @@ fun TaskItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .scale(scale),
+            .scale(scale)
+            .border(
+                width = 1.dp,
+                color = if (task.isCompleted) Color.Transparent else BorderGlow,
+                shape = RoundedCornerShape(16.dp)
+            ),
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface
     ) {
@@ -397,7 +405,7 @@ fun TaskItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Checkbox
+            // Checkbox - White border, white fill when checked
             Box(
                 modifier = Modifier
                     .size(26.dp)
@@ -422,7 +430,7 @@ fun TaskItem(
                     Icon(
                         Icons.Default.Check,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -456,11 +464,11 @@ fun TaskItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .clip(CircleShape)
-                            .background(task.priority.color.copy(alpha = alpha))
+                    // Priority indicator - grayscale dot
+                    Text(
+                        text = task.priority.icon,
+                        fontSize = 10.sp,
+                        color = task.priority.color.copy(alpha = alpha)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -499,10 +507,12 @@ fun AddTaskDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
         title = {
             Text(
                 "Add New Task",
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         text = {
@@ -513,7 +523,12 @@ fun AddTaskDialog(
                     label = { Text("Task title") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -562,13 +577,22 @@ fun AddTaskDialog(
         confirmButton = {
             Button(
                 onClick = { if (title.isNotBlank()) onAdd(title, category, priority) },
-                enabled = title.isNotBlank()
+                enabled = title.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
                 Text("Add Task")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            ) {
                 Text("Cancel")
             }
         }

@@ -1,6 +1,7 @@
 package xcom.niteshray.xapps.xblockit.feature.home.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import xcom.niteshray.xapps.xblockit.ui.theme.*
 
 @Composable
 fun HomeScreenMain() {
@@ -66,9 +68,15 @@ fun HomeScreenMain() {
                         )
                     }
                     
+                    // Notification icon with shine border
                     Surface(
                         shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primaryContainer
+                        color = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier.border(
+                            width = 1.dp,
+                            color = GlowWhite,
+                            shape = CircleShape
+                        )
                     ) {
                         Box(
                             modifier = Modifier
@@ -87,7 +95,7 @@ fun HomeScreenMain() {
             }
         }
         
-        // Today's Progress Card
+        // Today's Progress Card - Shining white design
         item {
             TodayProgressCard()
         }
@@ -114,7 +122,6 @@ fun HomeScreenMain() {
                         icon = Icons.Default.Timer,
                         title = "Start Focus",
                         subtitle = "25 min session",
-                        gradientColors = listOf(Color(0xFF3B82F6), Color(0xFF8B5CF6)),
                         onClick = { }
                     )
                     QuickActionCard(
@@ -122,7 +129,6 @@ fun HomeScreenMain() {
                         icon = Icons.Default.Add,
                         title = "Add Task",
                         subtitle = "Quick add",
-                        gradientColors = listOf(Color(0xFF10B981), Color(0xFF34D399)),
                         onClick = { }
                     )
                 }
@@ -177,12 +183,20 @@ fun TodayProgressCard() {
     var totalTasks by remember { mutableIntStateOf(7) }
     var streak by remember { mutableIntStateOf(12) }
     
+    // Main card with glowing white border
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 8.dp),
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(GlowWhiteMedium, GlowWhite, GlowWhiteMedium)
+                ),
+                shape = RoundedCornerShape(24.dp)
+            ),
         shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.primary
+        color = MaterialTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier.padding(20.dp)
@@ -196,20 +210,25 @@ fun TodayProgressCard() {
                     Text(
                         text = "Today's Progress",
                         fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.8f)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, MMM d")),
                         fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.6f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 
-                // Streak Badge
+                // Streak Badge with shine
                 Surface(
                     shape = RoundedCornerShape(20.dp),
-                    color = Color.White.copy(alpha = 0.2f)
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.border(
+                        width = 1.dp,
+                        color = GlowWhite,
+                        shape = RoundedCornerShape(20.dp)
+                    )
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -221,7 +240,7 @@ fun TodayProgressCard() {
                             text = "$streak days",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
@@ -243,7 +262,7 @@ fun TodayProgressCard() {
                     modifier = Modifier
                         .width(1.dp)
                         .height(50.dp)
-                        .background(Color.White.copy(alpha = 0.2f))
+                        .background(MaterialTheme.colorScheme.outline)
                 )
                 
                 ProgressStatItem(
@@ -256,7 +275,7 @@ fun TodayProgressCard() {
                     modifier = Modifier
                         .width(1.dp)
                         .height(50.dp)
-                        .background(Color.White.copy(alpha = 0.2f))
+                        .background(MaterialTheme.colorScheme.outline)
                 )
                 
                 ProgressStatItem(
@@ -284,12 +303,12 @@ fun ProgressStatItem(
             text = value,
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = label,
             fontSize = 12.sp,
-            color = Color.White.copy(alpha = 0.7f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -300,22 +319,24 @@ fun QuickActionCard(
     icon: ImageVector,
     title: String,
     subtitle: String,
-    gradientColors: List<Color>,
     onClick: () -> Unit
 ) {
+    // Clean white bordered card
     Surface(
         modifier = modifier
             .height(100.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .border(
+                width = 1.dp,
+                color = GlowWhite,
+                shape = RoundedCornerShape(20.dp)
+            ),
         shape = RoundedCornerShape(20.dp),
-        color = Color.Transparent
+        color = MaterialTheme.colorScheme.surface
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    brush = Brush.linearGradient(gradientColors)
-                )
                 .padding(16.dp)
         ) {
             Column(
@@ -325,7 +346,7 @@ fun QuickActionCard(
                 Icon(
                     imageVector = icon,
                     contentDescription = title,
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(28.dp)
                 )
                 Column {
@@ -333,12 +354,12 @@ fun QuickActionCard(
                         text = title,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = subtitle,
                         fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.8f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -382,12 +403,15 @@ fun HabitCard(
     val isComplete = current >= target
     
     Surface(
-        modifier = Modifier.width(120.dp),
+        modifier = Modifier
+            .width(120.dp)
+            .border(
+                width = if (isComplete) 1.dp else 0.dp,
+                color = if (isComplete) GlowWhiteMedium else Color.Transparent,
+                shape = RoundedCornerShape(20.dp)
+            ),
         shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surface,
-        border = if (isComplete) androidx.compose.foundation.BorderStroke(
-            2.dp, MaterialTheme.colorScheme.tertiary
-        ) else null
+        color = MaterialTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -403,14 +427,14 @@ fun HabitCard(
             )
             Spacer(modifier = Modifier.height(8.dp))
             
-            // Progress indicator
+            // Progress indicator - white on dark
             LinearProgressIndicator(
                 progress = { progress.coerceIn(0f, 1f) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(6.dp)
                     .clip(RoundedCornerShape(3.dp)),
-                color = if (isComplete) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant,
             )
             
@@ -418,7 +442,7 @@ fun HabitCard(
             Text(
                 text = if (isComplete) "Done! ✓" else "$current/$target",
                 fontSize = 12.sp,
-                color = if (isComplete) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (isComplete) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -433,7 +457,12 @@ fun WeeklyStatsCard() {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .border(
+                width = 1.dp,
+                color = BorderGlow,
+                shape = RoundedCornerShape(20.dp)
+            ),
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surface
     ) {

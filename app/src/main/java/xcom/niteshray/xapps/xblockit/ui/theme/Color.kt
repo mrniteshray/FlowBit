@@ -3,177 +3,203 @@ package xcom.niteshray.xapps.xblockit.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // ═══════════════════════════════════════════════════════════════
-// 🎨 BLOCKIT - PRODUCTION PRODUCTIVITY APP COLOR SYSTEM
-// Material 3 Design + Productivity Best Practices
-// WCAG AA Compliant | 60-30-10 Rule | Psychological Color Theory
+// 🎨 BLOCKIT - MINIMALISTIC BLACK & WHITE THEME
+// Modern, Clean, Dark-First Design with White Accents
 // ═══════════════════════════════════════════════════════════════
 
 // ─────────────────────────────────────────────────────────────
-// 🌞 LIGHT MODE COLORS - Calm, Professional, Focus-Oriented
+// ⚫ PRIMARY COLORS - Pure Black & White
 // ─────────────────────────────────────────────────────────────
 
-// PRIMARY - Serene Blue (Trust, Stability, Concentration)
-val LightPrimary = Color(0xFF0066CC)              // Deep Blue - CTA buttons, links
-val LightPrimaryVariant = Color(0xFF004C99)       // Darker Blue - Pressed states
-val LightPrimaryLight = Color(0xFFE6F2FF)         // Light Blue - Backgrounds, highlights
-val LightPrimaryContainer = Color(0xFFCCE5FF)     // Blue Container - Chips, tags
+// Pure Black (Background)
+val PureBlack = Color(0xFF000000)
+val NearBlack = Color(0xFF0A0A0A)
+val DarkGray = Color(0xFF121212)
+val MediumDarkGray = Color(0xFF1A1A1A)
+val CardDark = Color(0xFF1E1E1E)
 
-// SECONDARY - Energizing Purple (Creativity, Innovation)
-val LightSecondary = Color(0xFF7C3AED)            // Vibrant Purple - Accents
-val LightSecondaryVariant = Color(0xFF5B21B6)     // Deep Purple - Active states
-val LightSecondaryLight = Color(0xFFF3E8FF)       // Light Purple - Subtle highlights
-val LightSecondaryContainer = Color(0xFFE9D5FF)   // Purple Container
-
-// BACKGROUNDS & SURFACES (60% of design)
-val LightBackground = Color(0xFFFAFAFA)           // Soft Gray - Main background
-val LightSurface = Color(0xFFFFFFFF)              // Pure White - Cards, sheets
-val LightSurfaceVariant = Color(0xFFF5F5F5)       // Light Gray - Secondary cards
-val LightSurfaceElevated = Color(0xFFFFFFFF)      // Elevated surfaces
-val LightSurfaceDim = Color(0xFFEEEEEE)           // Dimmed surface
-
-// TEXT (Optimal readability ratios)
-val LightTextPrimary = Color(0xFF1A1A1A)          // Near Black - Body text (AAA)
-val LightTextSecondary = Color(0xFF616161)        // Medium Gray - Secondary text (AA)
-val LightTextTertiary = Color(0xFF9E9E9E)         // Light Gray - Disabled text
-val LightTextOnPrimary = Color(0xFFFFFFFF)        // White on primary
-
-// BORDERS & DIVIDERS
-val LightBorder = Color(0xFFE0E0E0)               // Subtle borders
-val LightBorderVariant = Color(0xFFBDBDBD)        // Emphasized borders
-val LightDivider = Color(0xFFF0F0F0)              // Section dividers
+// Pure White (Accent/Primary)
+val PureWhite = Color(0xFFFFFFFF)
+val OffWhite = Color(0xFFF5F5F5)
+val LightGray = Color(0xFFE0E0E0)
+val MediumGray = Color(0xFFB0B0B0)
+val DimGray = Color(0xFF808080)
+val DarkTextGray = Color(0xFF606060)
 
 // ─────────────────────────────────────────────────────────────
-// 🌙 DARK MODE COLORS - OLED-Friendly, Eye Comfort, Premium
+// ✨ SHINE & GLOW EFFECTS
 // ─────────────────────────────────────────────────────────────
 
-// PRIMARY - Brighter Blue (Enhanced visibility in dark)
-val DarkPrimary = Color(0xFF3D9CFF)               // Bright Blue - Stands out
-val DarkPrimaryVariant = Color(0xFF1E7FCC)        // Medium Blue
-val DarkPrimaryLight = Color(0xFF1A2332)          // Dark Blue - Backgrounds
-val DarkPrimaryContainer = Color(0xFF1E3A5F)      // Blue Container
-
-// SECONDARY - Vibrant Purple (Pops in dark mode)
-val DarkSecondary = Color(0xFF9F7AEA)             // Light Purple - Accents
-val DarkSecondaryVariant = Color(0xFF7C3AED)      // Medium Purple
-val DarkSecondaryLight = Color(0xFF1F1733)        // Dark Purple - Backgrounds
-val DarkSecondaryContainer = Color(0xFF2E1F47)    // Purple Container
-
-// BACKGROUNDS & SURFACES (True Dark, OLED-optimized)
-val DarkBackground = Color(0xFF0A0A0A)            // Pure Black - Battery efficient
-val DarkSurface = Color(0xFF1A1A1A)               // Near Black - Cards
-val DarkSurfaceVariant = Color(0xFF242424)        // Dark Gray - Elevated cards
-val DarkSurfaceElevated = Color(0xFF2E2E2E)       // Highest elevation
-val DarkSurfaceDim = Color(0xFF141414)            // Dimmed surface
-
-// TEXT (Enhanced contrast for dark mode)
-val DarkTextPrimary = Color(0xFFE8E8E8)           // Light Gray - Body text
-val DarkTextSecondary = Color(0xFFB0B0B0)         // Medium Gray - Secondary
-val DarkTextTertiary = Color(0xFF757575)          // Dark Gray - Disabled
-val DarkTextOnPrimary = Color(0xFF000000)         // Black on bright primary
-
-// BORDERS & DIVIDERS
-val DarkBorder = Color(0xFF2E2E2E)                // Subtle borders
-val DarkBorderVariant = Color(0xFF424242)         // Emphasized borders
-val DarkDivider = Color(0xFF1F1F1F)               // Section dividers
+val ShineWhite = Color(0xFFFFFFFF)
+val GlowWhite = Color(0x40FFFFFF)  // 25% white for subtle glow
+val GlowWhiteMedium = Color(0x66FFFFFF)  // 40% white
+val GlowWhiteStrong = Color(0x99FFFFFF)  // 60% white
+val BorderGlow = Color(0x33FFFFFF)  // 20% white for borders
 
 // ─────────────────────────────────────────────────────────────
-// 🎨 SEMANTIC COLORS (Same for both modes, accessible)
+// 🌙 DARK THEME COLORS (Primary Theme)
 // ─────────────────────────────────────────────────────────────
 
-// SUCCESS
-val Success = Color(0xFF10B981)                   // Emerald - Achievement
-val SuccessLight = Color(0xFFD1FAE5)              // Light Green bg (light mode)
-val SuccessDark = Color(0xFF064E3B)               // Dark Green bg (dark mode)
+// Primary - White on Black
+val DarkPrimary = PureWhite
+val DarkPrimaryVariant = OffWhite
+val DarkPrimaryLight = Color(0xFF2A2A2A)  // Slightly lighter for containers
+val DarkPrimaryContainer = Color(0xFF333333)
 
-// WARNING
-val Warning = Color(0xFFFB923C)                   // Orange - Caution
-val WarningLight = Color(0xFFFED7AA)              // Light Orange bg
-val WarningDark = Color(0xFF7C2D12)               // Dark Orange bg
+// Secondary - Gray tones for subtle accents
+val DarkSecondary = LightGray
+val DarkSecondaryVariant = MediumGray
+val DarkSecondaryLight = Color(0xFF252525)
+val DarkSecondaryContainer = Color(0xFF2E2E2E)
 
-// ERROR
-val Error = Color(0xFFEF4444)                     // Red - Danger
-val ErrorLight = Color(0xFFFEE2E2)                // Light Red bg
-val ErrorDark = Color(0xFF7F1D1D)                 // Dark Red bg
+// Backgrounds & Surfaces (OLED-Friendly Pure Black)
+val DarkBackground = PureBlack
+val DarkSurface = MediumDarkGray
+val DarkSurfaceVariant = CardDark
+val DarkSurfaceElevated = Color(0xFF252525)
+val DarkSurfaceDim = DarkGray
 
-// INFO
-val Info = Color(0xFF3B82F6)                      // Blue - Information
-val InfoLight = Color(0xFFDBEAFE)                 // Light Blue bg
-val InfoDark = Color(0xFF1E3A8A)                  // Dark Blue bg
+// Text Colors
+val DarkTextPrimary = PureWhite
+val DarkTextSecondary = MediumGray
+val DarkTextTertiary = DimGray
+val DarkTextOnPrimary = PureBlack  // Black text on white buttons
 
-// ─────────────────────────────────────────────────────────────
-// 🎯 STATUS INDICATORS (Productivity specific)
-// ─────────────────────────────────────────────────────────────
-
-val StatusActive = Color(0xFF10B981)              // Green - Active/Running
-val StatusPaused = Color(0xFFFB923C)              // Orange - Paused
-val StatusBlocked = Color(0xFFEF4444)             // Red - Blocked
-val StatusInactive = Color(0xFF6B7280)            // Gray - Inactive
-val StatusCompleted = Color(0xFF8B5CF6)           // Purple - Completed
-
-// ─────────────────────────────────────────────────────────────
-// ✨ SPECIAL EFFECTS
-// ─────────────────────────────────────────────────────────────
-
-// GRADIENTS (Modern, eye-catching)
-val GradientBlueStart = Color(0xFF0066CC)
-val GradientBlueEnd = Color(0xFF3D9CFF)
-val GradientPurpleStart = Color(0xFF7C3AED)
-val GradientPurpleEnd = Color(0xFF9F7AEA)
-val GradientMixedStart = Color(0xFF0066CC)
-val GradientMixedEnd = Color(0xFF7C3AED)
-
-// OVERLAYS
-val OverlayLight = Color(0x40000000)              // 25% Black
-val OverlayMedium = Color(0x80000000)             // 50% Black
-val OverlayDark = Color(0xB3000000)               // 70% Black
-
-// SHIMMER (Loading states)
-val ShimmerLight = Color(0xFFE0E0E0)
-val ShimmerDark = Color(0xFF2E2E2E)
-val ShimmerHighlight = Color(0xFFF5F5F5)
+// Borders & Dividers
+val DarkBorder = Color(0xFF333333)
+val DarkBorderVariant = Color(0xFF444444)
+val DarkDivider = Color(0xFF1F1F1F)
 
 // ─────────────────────────────────────────────────────────────
-// 🔧 LEGACY COMPATIBILITY (For gradual migration)
+// ☀️ LIGHT MODE COLORS (Optional fallback)
 // ─────────────────────────────────────────────────────────────
 
-// Kept for backward compatibility
-val Primary = LightPrimary
-val PrimaryVariant = LightPrimaryVariant
-val PrimaryLight = LightPrimaryLight
-val Secondary = LightSecondary
-val SecondaryVariant = LightSecondaryVariant
-val SecondaryLight = LightSecondaryLight
-val Background = LightBackground
-val BackgroundVariant = LightSurfaceVariant
-val Surface = LightSurface
-val SurfaceVariant = LightSurfaceVariant
-val SurfaceElevated = LightSurfaceElevated
-val TextPrimary = LightTextPrimary
-val TextSecondary = LightTextSecondary
-val TextTertiary = LightTextTertiary
-val TextInverse = LightTextOnPrimary
-val Border = LightBorder
-val BorderFocused = LightPrimary
-val Divider = LightDivider
+val LightPrimary = PureBlack
+val LightPrimaryVariant = DarkGray
+val LightPrimaryLight = Color(0xFFF0F0F0)
+val LightPrimaryContainer = Color(0xFFE8E8E8)
+val LightSecondary = DimGray
+val LightSecondaryVariant = DarkTextGray
+val LightSecondaryLight = Color(0xFFFAFAFA)
+val LightSecondaryContainer = Color(0xFFF5F5F5)
+val LightBackground = PureWhite
+val LightSurface = PureWhite
+val LightSurfaceVariant = OffWhite
+val LightSurfaceElevated = PureWhite
+val LightSurfaceDim = Color(0xFFEEEEEE)
+val LightTextPrimary = PureBlack
+val LightTextSecondary = DimGray
+val LightTextTertiary = MediumGray
+val LightTextOnPrimary = PureWhite
+val LightBorder = LightGray
+val LightBorderVariant = MediumGray
+val LightDivider = OffWhite
+
+// ─────────────────────────────────────────────────────────────
+// 🎯 SEMANTIC COLORS (Minimal - Only Error for critical)
+// ─────────────────────────────────────────────────────────────
+
+// Success - Soft white/gray (not green - minimalistic)
+val Success = PureWhite
+val SuccessLight = Color(0xFFF5F5F5)
+val SuccessDark = Color(0xFF2A2A2A)
+
+// Warning - Slightly warm gray
+val Warning = Color(0xFFE0D0C0)  // Warm off-white
+val WarningLight = Color(0xFFFAF5F0)
+val WarningDark = Color(0xFF3A3530)
+
+// Error - Keep subtle red for critical actions only
+val Error = Color(0xFFFF6B6B)  // Softer red
+val ErrorLight = Color(0xFFFFE5E5)
+val ErrorDark = Color(0xFF3A2020)
+
+// Info - Light gray
+val Info = MediumGray
+val InfoLight = OffWhite
+val InfoDark = CardDark
+
+// ─────────────────────────────────────────────────────────────
+// 🎯 STATUS INDICATORS (Grayscale hierarchy)
+// ─────────────────────────────────────────────────────────────
+
+val StatusActive = PureWhite  // Brightest = Active
+val StatusPaused = MediumGray  // Medium = Paused
+val StatusBlocked = Color(0xFFFF6B6B)  // Subtle red = Blocked
+val StatusInactive = DimGray  // Dim = Inactive
+val StatusCompleted = LightGray  // Light = Completed
+
+// ─────────────────────────────────────────────────────────────
+// ✨ GRADIENTS (White to Gray for subtle effects)
+// ─────────────────────────────────────────────────────────────
+
+val GradientWhiteStart = PureWhite
+val GradientWhiteEnd = LightGray
+val GradientDarkStart = Color(0xFF2A2A2A)
+val GradientDarkEnd = Color(0xFF1A1A1A)
+val GradientMixedStart = PureWhite
+val GradientMixedEnd = MediumGray
+
+// Legacy gradient names for compatibility
+val GradientBlueStart = PureWhite
+val GradientBlueEnd = LightGray
+val GradientPurpleStart = MediumGray
+val GradientPurpleEnd = LightGray
+
+// ─────────────────────────────────────────────────────────────
+// 🔲 OVERLAYS & EFFECTS
+// ─────────────────────────────────────────────────────────────
+
+val OverlayLight = Color(0x40000000)  // 25% Black
+val OverlayMedium = Color(0x80000000)  // 50% Black
+val OverlayDark = Color(0xB3000000)  // 70% Black
+
+// Shimmer (Loading states)
+val ShimmerLight = LightGray
+val ShimmerDark = CardDark
+val ShimmerHighlight = OffWhite
+
+// ─────────────────────────────────────────────────────────────
+// 🔧 LEGACY COMPATIBILITY
+// ─────────────────────────────────────────────────────────────
+
+val Primary = DarkPrimary
+val PrimaryVariant = DarkPrimaryVariant
+val PrimaryLight = DarkPrimaryLight
+val Secondary = DarkSecondary
+val SecondaryVariant = DarkSecondaryVariant
+val SecondaryLight = DarkSecondaryLight
+val Background = DarkBackground
+val BackgroundVariant = DarkSurfaceVariant
+val Surface = DarkSurface
+val SurfaceVariant = DarkSurfaceVariant
+val SurfaceElevated = DarkSurfaceElevated
+val TextPrimary = DarkTextPrimary
+val TextSecondary = DarkTextSecondary
+val TextTertiary = DarkTextTertiary
+val TextInverse = DarkTextOnPrimary
+val Border = DarkBorder
+val BorderFocused = DarkPrimary
+val Divider = DarkDivider
 val Overlay = OverlayMedium
 val OverlayLight_Legacy = OverlayLight
-val Shimmer = ShimmerLight
+val Shimmer = ShimmerDark
 val Shadow = Color(0x1A000000)
-val Highlight = Color(0xFFFAFBFC)
+val Highlight = GlowWhite
 val Active = StatusActive
 val Inactive = StatusInactive
 val Blocked = StatusBlocked
 val Paused = StatusPaused
-val GradientStart = GradientBlueStart
-val GradientEnd = GradientBlueEnd
-val Blue = LightPrimary
-val lightblue = LightPrimary
-val Black = Color(0xFF000000)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-val gray = Color(0xFF2C2C2D)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val GradientStart = GradientWhiteStart
+val GradientEnd = GradientWhiteEnd
+val Blue = PureWhite  // Legacy - now white
+val lightblue = LightGray  // Legacy - now light gray
+val Black = PureBlack
+val PurpleGrey80 = MediumGray
+val Pink80 = LightGray
+val gray = CardDark
+val PurpleGrey40 = DimGray
+val Pink40 = DimGray
 val SuccessLight_Legacy = SuccessLight
 val WarningLight_Legacy = WarningLight
 val ErrorLight_Legacy = ErrorLight

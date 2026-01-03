@@ -1,6 +1,5 @@
 package xcom.niteshray.xapps.xblockit.feature.focus
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -28,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import xcom.niteshray.xapps.xblockit.ui.theme.*
 
 data class FocusSession(
     val name: String,
@@ -109,10 +109,15 @@ fun FocusScreen() {
                 )
             }
             
-            // Stats Badge
+            // Stats Badge with shine
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = GlowWhite,
+                    shape = RoundedCornerShape(12.dp)
+                )
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -123,7 +128,7 @@ fun FocusScreen() {
                     Text(
                         text = "$completedSessions",
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -160,7 +165,7 @@ fun FocusScreen() {
         
         Spacer(modifier = Modifier.weight(1f))
         
-        // Timer Circle
+        // Timer Circle - White arc on dark background
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -168,22 +173,22 @@ fun FocusScreen() {
                 .padding(40.dp),
             contentAlignment = Alignment.Center
         ) {
-            // Background Circle
+            // Background Circle - subtle dark ring
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawCircle(
-                    color = Color(0xFF1E1E1E).copy(alpha = 0.3f),
+                    color = CardDark,
                     style = Stroke(width = 20f, cap = StrokeCap.Round)
                 )
             }
             
-            // Progress Arc
+            // Progress Arc - White gradient
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawArc(
                     brush = Brush.sweepGradient(
-                        colors = if (isBreakTime) 
-                            listOf(Color(0xFF10B981), Color(0xFF34D399))
-                        else 
-                            listOf(Color(0xFF3B82F6), Color(0xFF8B5CF6))
+                        colors = if (isBreakTime)
+                            listOf(MediumGray, LightGray)
+                        else
+                            listOf(PureWhite, LightGray)
                     ),
                     startAngle = -90f,
                     sweepAngle = 360f * progress,
@@ -224,7 +229,7 @@ fun FocusScreen() {
         
         Spacer(modifier = Modifier.weight(1f))
         
-        // Control Buttons
+        // Control Buttons - White filled
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
@@ -255,18 +260,16 @@ fun FocusScreen() {
                 Spacer(modifier = Modifier.width(24.dp))
             }
             
-            // Main Play/Pause Button
+            // Main Play/Pause Button - White with black icon
             Box(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = if (isBreakTime)
-                                listOf(Color(0xFF10B981), Color(0xFF34D399))
-                            else
-                                listOf(Color(0xFF3B82F6), Color(0xFF8B5CF6))
-                        )
+                    .background(MaterialTheme.colorScheme.primary)
+                    .border(
+                        width = 2.dp,
+                        color = GlowWhite,
+                        shape = CircleShape
                     )
                     .clickable {
                         if (!isRunning) {
@@ -281,7 +284,7 @@ fun FocusScreen() {
                 Icon(
                     imageVector = if (!isRunning || isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
                     contentDescription = if (!isRunning || isPaused) "Start" else "Pause",
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(36.dp)
                 )
             }
@@ -312,9 +315,15 @@ fun FocusScreen() {
         
         Spacer(modifier = Modifier.height(32.dp))
         
-        // Today's Stats
+        // Today's Stats with border
         Surface(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    color = BorderGlow,
+                    shape = RoundedCornerShape(16.dp)
+                ),
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surface
         ) {
@@ -353,12 +362,14 @@ fun SessionCard(
     Surface(
         modifier = Modifier
             .width(120.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .border(
+                width = if (isSelected) 2.dp else 1.dp,
+                color = if (isSelected) GlowWhiteMedium else BorderGlow,
+                shape = RoundedCornerShape(16.dp)
+            ),
         shape = RoundedCornerShape(16.dp),
-        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-        border = if (isSelected) null else androidx.compose.foundation.BorderStroke(
-            1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-        )
+        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
