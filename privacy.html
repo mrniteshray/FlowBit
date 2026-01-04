@@ -3,251 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - Blockit</title>
-    <meta name="description" content="Privacy Policy for Blockit - Open-source distraction blocker for Android">
-    <link rel="stylesheet" href="styles.css">
+    <title>Privacy Policy - FlowBit</title>
+    <meta name="description" content="Privacy Policy for FlowBit (formerly Blockit) - Productivity app with Pomodoro timer and distraction blocker for Android">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .privacy-header {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
             padding: 60px 0;
             text-align: center;
+            border-bottom: 1px solid #333;
         }
         
-        .privacy-content {
-            background: #0a0a0a;
-            padding: 80px 0;
-        }
-        
-        .privacy-content .container {
-            max-width: 800px;
-        }
-        
-        .privacy-content h1 {
+        .header h1 {
             font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #4ecdc4;
+            font-weight: 700;
+            margin-bottom: 8px;
         }
         
-        .privacy-content h2 {
-            font-size: 1.8rem;
-            margin: 40px 0 20px;
-            color: #ffffff;
-            border-bottom: 2px solid #4ecdc4;
-            padding-bottom: 10px;
+        .header .subtitle {
+            color: #888;
+            font-size: 1rem;
         }
         
-        .privacy-content h3 {
-            font-size: 1.3rem;
-            margin: 30px 0 15px;
-            color: #4ecdc4;
+        .header .update-date {
+            color: #666;
+            font-size: 0.875rem;
+            margin-top: 16px;
         }
         
-        .privacy-content p {
-            margin-bottom: 20px;
-            line-height: 1.8;
-            color: #cccccc;
+        .content {
+            padding: 60px 0;
         }
         
-        .privacy-content ul {
-            margin: 20px 0;
-            padding-left: 30px;
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 48px 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #333;
         }
         
-        .privacy-content li {
-            margin-bottom: 10px;
-            color: #cccccc;
-            line-height: 1.6;
+        h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 32px 0 16px 0;
+            color: #ccc;
         }
         
-        .privacy-content strong {
-            color: #ffffff;
+        p {
+            margin-bottom: 16px;
+            color: #bbb;
         }
         
-        .privacy-content em {
-            color: #4ecdc4;
+        ul {
+            margin: 16px 0;
+            padding-left: 24px;
         }
         
-        .back-link {
-            display: inline-block;
-            margin-bottom: 30px;
-            color: #4ecdc4;
-            text-decoration: none;
-            font-weight: 500;
+        li {
+            margin-bottom: 12px;
+            color: #bbb;
         }
         
-        .back-link:hover {
-            text-decoration: underline;
+        strong {
+            color: #fff;
+            font-weight: 600;
         }
         
         .highlight-box {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        
+        .highlight-box.important {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.05);
+        }
+        
+        .highlight-box.info {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.05);
+        }
+        
+        .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .accessibility-section {
+            background: #0d0d0d;
+            border: 2px solid #4ecdc4;
+            border-radius: 16px;
+            padding: 32px;
+            margin: 32px 0;
+        }
+        
+        .accessibility-section h2 {
+            border: none;
+            margin-top: 0;
+            padding-bottom: 0;
+            color: #4ecdc4;
+        }
+        
+        .badge {
+            display: inline-block;
             background: #1a1a1a;
-            border: 1px solid #4ecdc4;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 30px 0;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 4px 12px;
+            font-size: 0.875rem;
+            color: #888;
+            margin-bottom: 16px;
         }
         
-        .contact-info {
-            background: #111111;
-            border-radius: 8px;
-            padding: 30px;
+        .badge.warning {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+        
+        code {
+            background: #1a1a1a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            color: #4ecdc4;
+        }
+        
+        .contact-box {
+            background: #111;
+            border-radius: 16px;
+            padding: 32px;
             text-align: center;
-            margin: 40px 0;
+            margin: 48px 0;
         }
         
-        .contact-info h3 {
-            margin-bottom: 15px;
+        .contact-box h3 {
+            margin-top: 0;
+            color: #fff;
         }
         
-        .contact-info a {
+        .contact-box a {
             color: #4ecdc4;
             text-decoration: none;
             font-weight: 500;
         }
         
-        .contact-info a:hover {
+        .contact-box a:hover {
             text-decoration: underline;
+        }
+        
+        .footer {
+            background: #0a0a0a;
+            border-top: 1px solid #222;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        .footer p {
+            color: #666;
+            font-size: 0.875rem;
+        }
+        
+        .footer a {
+            color: #4ecdc4;
+            text-decoration: none;
+        }
+        
+        .name-change {
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.1) 0%, rgba(78, 205, 196, 0.05) 100%);
+            border: 1px solid #4ecdc4;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 24px 0;
+        }
+        
+        .name-change strong {
+            color: #4ecdc4;
+        }
+        
+        .feature-list {
+            display: grid;
+            gap: 16px;
+            margin: 24px 0;
+        }
+        
+        .feature-item {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .feature-item h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+        
+        .feature-item p {
+            font-size: 0.9rem;
+            margin: 0;
         }
     </style>
 </head>
 <body>
-    <header class="privacy-header">
+    <header class="header">
         <div class="container">
-            <h1>🛡️ Privacy Policy</h1>
-            <p>Last updated: August 24, 2025</p>
+            <h1>🧘 Privacy Policy</h1>
+            <p class="subtitle">FlowBit - Your Minimalist Productivity Companion</p>
+            <p class="update-date">Last updated: January 5, 2026</p>
         </div>
     </header>
 
-    <main class="privacy-content">
+    <main class="content">
         <div class="container">
-            <a href="index.html" class="back-link">← Back to Home</a>
-
-            <div class="highlight-box">
-                <p><strong>Welcome to Blockit!</strong><br>
-                Your privacy is important to us. This policy explains how Blockit handles permissions and data to keep your experience safe, transparent, and focused.</p>
+            
+            <div class="name-change">
+                <strong>📢 Important Notice:</strong> This app was formerly known as <strong>"Blockit"</strong> and has been rebranded to <strong>"FlowBit"</strong>. All policies remain the same, and your data and preferences are unaffected by this name change.
             </div>
 
-            <h2>🔐 1. What Information We Collect</h2>
-            <p>Blockit <strong>does not collect, store, or share any personal information</strong>.<br>
-            The app runs <strong>entirely offline</strong> and does <strong>not require login or account creation</strong>.</p>
+            <div class="highlight-box info">
+                <p><strong>Welcome to FlowBit!</strong></p>
+                <p>Your privacy is our priority. FlowBit is designed to help you stay focused and productive while respecting your privacy. This policy explains transparently how the app handles permissions and data.</p>
+            </div>
 
-            <h2>⚙️ 2. Permissions We Use and Why</h2>
-            <p>To offer core features that help users stay focused, Blockit requests the following permissions:</p>
-
+            <h2>📱 About FlowBit</h2>
+            <p>FlowBit is a productivity app that combines a <strong>Pomodoro focus timer</strong> with <strong>ambient focus sounds</strong> and <strong>distraction blocking</strong> capabilities. The app is designed to help you:</p>
             <ul>
-                <li><strong>Accessibility Service:</strong><br>
-                Required to detect and block specific UI components like Shorts/Reels from apps (e.g., YouTube, Instagram).<br>
-                📌 <em>We use this only to help block distractions. No data is read, stored, or shared.</em></li>
-
-                <li><strong>Usage Access:</strong><br>
-                Required to identify which apps are running so they can be blocked if needed.</li>
-
-                <li><strong>Battery Optimization Exemption:</strong><br>
-                Required to allow Blockit to run uninterrupted in the background for real-time blocking.</li>
-
-                <li><strong>Notification Permission:</strong><br>
-                Used to display helpful reminders when blocking starts, ends, or focus mode is active.</li>
-
-                <li><strong>Website Blocking (via in-app browser/WebView):</strong><br>
-                Websites are blocked using local filters. We do <strong>not collect, store, or transmit</strong> any URLs or browsing data.</li>
+                <li>Stay focused with 25-minute Pomodoro sessions</li>
+                <li>Block distracting apps, websites, and short-form content</li>
+                <li>Enhance concentration with white, brown, and pink noise</li>
             </ul>
 
-            <h2>👁️‍🗨️ Accessibility Service Disclosure (Google Play Compliance)</h2>
-            <p>Blockit requests the Accessibility Service permission <strong>only</strong> for the following core features:</p>
-
-            <ul>
-                <li>Detecting which apps and screens are currently active to block distracting content (such as Shorts, Reels, or other specified apps).</li>
-                <li>Automatically displaying a block overlay to help you stay focused.</li>
-            </ul>
-
-            <h3>What accessibility data Blockit receives:</h3>
-            <ul>
-                <li>Limited information about which app or UI screen is in use (the app package name, some non-personal accessibility events such as window/state changes).</li>
-            </ul>
-
-            <h3>What Blockit does NOT access or collect:</h3>
+            <h2>🔐 1. Data Collection</h2>
             <div class="highlight-box">
-                <p>The app does <strong>not</strong> read, log, store, or transmit:</p>
+                <p><strong>FlowBit does NOT collect, store, or share any personal information.</strong></p>
+                <p>The app runs <strong>entirely offline</strong> on your device and does not require any login, account creation, or internet connection to function.</p>
+            </div>
+
+            <h2>⚙️ 2. Permissions We Request</h2>
+            <p>To provide its core features, FlowBit requests the following permissions:</p>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h4>🔊 Audio Permission</h4>
+                    <p>Used to play focus sounds (white noise, brown noise, pink noise) through the device's audio system. Audio is generated programmatically on-device.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h4>♿ Accessibility Service</h4>
+                    <p>Required to detect and block specific content like YouTube Shorts, Instagram Reels, and other selected apps. <strong>See detailed disclosure below.</strong></p>
+                </div>
+                
+                <div class="feature-item">
+                    <h4>📊 Usage Access</h4>
+                    <p>Required to identify which apps are currently running so they can be blocked if added to your blocklist.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h4>🔋 Battery Optimization Exemption</h4>
+                    <p>Allows FlowBit to run continuously in the background for real-time blocking without being killed by the system.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h4>🔔 Notification Permission</h4>
+                    <p>Used to display helpful reminders when focus sessions start/end or when blocking is active.</p>
+                </div>
+            </div>
+
+            <div class="accessibility-section">
+                <span class="badge warning">⚠️ Sensitive Permission</span>
+                <h2>♿ Accessibility Service Disclosure</h2>
+                <p><strong>Google Play Compliance Statement</strong></p>
+                
+                <h3>Why FlowBit Requires Accessibility Service</h3>
+                <p>FlowBit uses the Android Accessibility Service <strong>exclusively</strong> for the following purposes:</p>
                 <ul>
-                    <li>Text contents displayed on your device</li>
-                    <li>Personal information, messages, passwords, payment details</li>
-                    <li>Input fields, audio, or touch input</li>
+                    <li><strong>Detecting app activity:</strong> To identify when you open apps or content that you've chosen to block (such as YouTube Shorts, Instagram Reels, or specific apps).</li>
+                    <li><strong>Displaying block overlay:</strong> To show a blocking screen when you attempt to access blocked content, helping you stay focused.</li>
+                </ul>
+
+                <h3>What Data the Accessibility Service Receives</h3>
+                <ul>
+                    <li>App package names (e.g., "com.google.android.youtube")</li>
+                    <li>Window state change events (e.g., when an app is opened or closed)</li>
+                    <li>UI component identifiers (to detect specific screens like Shorts or Reels)</li>
+                </ul>
+
+                <h3>What FlowBit Does NOT Access</h3>
+                <div class="highlight-box important">
+                    <p>FlowBit <strong>NEVER</strong> reads, logs, stores, or transmits:</p>
+                    <ul>
+                        <li>❌ Text content displayed on your screen</li>
+                        <li>❌ Personal messages, emails, or chat content</li>
+                        <li>❌ Passwords, payment information, or credentials</li>
+                        <li>❌ Keyboard input or touch gestures</li>
+                        <li>❌ Audio, photos, or any media files</li>
+                        <li>❌ Any data to external servers</li>
+                    </ul>
+                </div>
+
+                <h3>Data Processing</h3>
+                <p>All accessibility events are processed <strong>entirely on your device</strong> and are <strong>never uploaded, sold, or shared with anyone</strong>. The data is used only in real-time to determine if blocking should be triggered.</p>
+
+                <h3>Your Control</h3>
+                <ul>
+                    <li>Accessibility permission is <strong>optional</strong>. The focus timer and noise features work without it.</li>
+                    <li>Only the blocking features (Block Shorts, Block Apps) require this permission.</li>
+                    <li>You can disable at any time via: <code>Settings</code> → <code>Accessibility</code> → <code>FlowBit</code> → Turn Off</li>
                 </ul>
             </div>
 
-            <p>All accessibility events are processed entirely <strong>on your device</strong> and are <strong>never collected, uploaded, sold, or shared with anyone</strong>.</p>
-
-            <p>Granting Accessibility permission is <strong>completely optional</strong>, but some focus & blocking features will not work without it. You can continue to use other features without granting this permission.</p>
-
-            <h3>How to revoke:</h3>
-            <p>At any time, you can disable Accessibility permission for Blockit in your device's Android Settings under: <code>Settings</code> > <code>Accessibility</code> > <code>Installed Services</code> > <code>Blockit</code> > Disable.</p>
-
-            <p>Blockit strictly follows the Google Play User Data Policy for Accessibility and user privacy.</p>
-
-            <h2>🔒 3. Data Handling & Security</h2>
+            <h2>🔒 3. Data Security</h2>
             <ul>
-                <li>Blockit functions <strong>completely on-device</strong>.</li>
-                <li>It does <strong>not connect to any server</strong>, nor transmit data over the internet.</li>
-                <li>No personal data is logged, collected, shared, or monetized.</li>
+                <li>FlowBit operates <strong>100% offline</strong> with no internet connection required.</li>
+                <li>No data is transmitted to any server or third party.</li>
+                <li>Your blocklist and preferences are stored locally on your device only.</li>
+                <li>Uninstalling the app removes all associated data.</li>
             </ul>
 
-            <h2>🚫 4. No Third-Party Services</h2>
-            <p>Blockit does <strong>not use ads, analytics SDKs, or third-party tracking services</strong>.</p>
-
-            <h2>🛡️ 5. User Control</h2>
-            <p>You are always in control.</p>
+            <h2>🚫 4. Third-Party Services</h2>
+            <p>FlowBit does <strong>NOT</strong> use:</p>
             <ul>
-                <li>You can revoke any permission at any time via system settings.</li>
-                <li>The app continues to function (with limited features) even without some permissions.</li>
+                <li>❌ Advertisements or ad SDKs</li>
+                <li>❌ Analytics or tracking services</li>
+                <li>❌ Firebase, Google Analytics, or similar services</li>
+                <li>❌ Any third-party data collection tools</li>
             </ul>
 
-            <h2>📝 6. Changes to This Policy</h2>
-            <p>We may occasionally update this Privacy Policy to reflect improvements.<br>
-            All changes will be posted within the app or on our official GitHub page.</p>
+            <h2>👤 5. Children's Privacy</h2>
+            <p>FlowBit does not collect any personal information from anyone, including children under 13. The app is suitable for users of all ages as it collects no data.</p>
 
-            <h2>📬 7. Contact Us</h2>
-            <div class="contact-info">
-                <h3>Questions or Suggestions?</h3>
-                <p>If you have any questions or suggestions about this Privacy Policy, feel free to contact us:</p>
+            <h2>🛡️ 6. User Rights & Control</h2>
+            <p>You have complete control over the app:</p>
+            <ul>
+                <li>Revoke any permission at any time through Android Settings.</li>
+                <li>The app continues to function (with limited features) without sensitive permissions.</li>
+                <li>Delete all app data by clearing storage or uninstalling.</li>
+            </ul>
+
+            <h2>📝 7. Policy Updates</h2>
+            <p>We may update this Privacy Policy to reflect app improvements or policy changes. Updates will be:</p>
+            <ul>
+                <li>Posted on this page with a new "Last updated" date</li>
+                <li>Announced in app release notes when significant</li>
+            </ul>
+
+            <h2>📬 8. Contact Us</h2>
+            <div class="contact-box">
+                <h3>Questions or Concerns?</h3>
+                <p>If you have any questions about this Privacy Policy or FlowBit's data practices, please contact us:</p>
                 <p>📧 <a href="mailto:niteshr070104@gmail.com">niteshr070104@gmail.com</a></p>
             </div>
 
-            <div class="highlight-box">
-                <p><strong>Thank you for choosing Blockit to help reduce distractions and stay focused! 🧠📵</strong></p>
+            <div class="highlight-box info">
+                <p><strong>Thank you for choosing FlowBit!</strong></p>
+                <p>We're committed to helping you stay focused and productive while respecting your privacy. 🧘</p>
             </div>
+
         </div>
     </main>
 
-    <footer>
+    <footer class="footer">
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>🚫 Blockit</h3>
-                    <p>Open-source distraction blocker for Android</p>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Links</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="https://github.com/mrniteshray/Blockit" target="_blank">GitHub Repository</a></li>
-                        <li><a href="https://github.com/mrniteshray/Blockit/releases" target="_blank">Releases</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Contact</h4>
-                    <p>📧 <a href="mailto:niteshr070104@gmail.com">niteshr070104@gmail.com</a></p>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; 2025 Blockit. Made with ❤️ by Nitesh Ray</p>
-            </div>
+            <p>© 2026 FlowBit (formerly Blockit). Made with ❤️ by <a href="https://github.com/mrniteshray">Nitesh Ray</a></p>
+            <p style="margin-top: 8px;"><a href="https://github.com/mrniteshray/FlowBit">GitHub</a></p>
         </div>
     </footer>
-
-    <script src="script.js"></script>
 </body>
 </html>
