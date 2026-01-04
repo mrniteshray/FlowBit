@@ -13,19 +13,14 @@ android {
         applicationId = "xcom.niteshray.xapps.xblockit"
         minSdk = 24
         targetSdk = 35
-        versionCode = 18
-        versionName = "1.3"
+        versionCode = 19
+        versionName = "1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            // ═══════════════════════════════════════════════════════════════
-            // 🚀 PRODUCTION OPTIMIZATIONS
-            // ═══════════════════════════════════════════════════════════════
-            
-            // Enable code shrinking, obfuscation, and optimization
             isMinifyEnabled = true
             isShrinkResources = true
             
