@@ -3,7 +3,7 @@ package xcom.niteshray.xapps.xblockit.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // ═══════════════════════════════════════════════════════════════
-// 🎨 BLOCKIT - MINIMALISTIC BLACK & WHITE THEME
+// 🎨 FLOWBIT - MINIMALISTIC BLACK & WHITE THEME
 // Modern, Clean, Dark-First Design with White Accents
 // ═══════════════════════════════════════════════════════════════
 

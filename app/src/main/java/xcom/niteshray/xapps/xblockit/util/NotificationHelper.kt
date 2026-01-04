@@ -19,7 +19,7 @@ class NotificationHelper(private val context: Context) {
 
     companion object {
         const val CHANNEL_ID = "blockit_channel"
-        const val CHANNEL_NAME = "BlockIt Alerts"
+        const val CHANNEL_NAME = "FlowBit Alerts"
         const val NOTIFICATION_ID = 1001
     }
 
@@ -56,7 +56,7 @@ class NotificationHelper(private val context: Context) {
                 Handler(Looper.getMainLooper()).post {
                     Toast.makeText(
                         context,
-                        "Please enable notification permission for BlockIt",
+                        "Please enable notification permission for FlowBit",
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -68,7 +68,7 @@ class NotificationHelper(private val context: Context) {
         checkAndRequestPermission()
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.logo)
-            .setContentTitle("Blockit’s On, Stop Scrolling!🛑")
+            .setContentTitle("FlowBit's On, Stay Focused! 🧘")
             .setContentText("")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
@@ -97,7 +97,7 @@ class NotificationHelper(private val context: Context) {
             "You’ve already seen enough today. Let’s refocus! ⏰",
             "Small actions = Big habits. Let’s grow strong 💡",
             "Take a breath. Your time is valuable. 🧘‍♂️",
-            "BlockIt is helping you unplug for a while. 🔌",
+            "FlowBit is helping you unplug for a while. 🔌",
             "This moment could be productive. Let’s use it well. 📚",
             "Winners stay focused. You’re one of them! 🏆",
             "One scroll less, one goal closer. Keep going! 🚀",

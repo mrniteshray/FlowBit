@@ -63,7 +63,7 @@ fun AccessibilityPermissionBottomSheet(
 
             // Description
             Text(
-                text = "Blockit requires Accessibility Service permission to detect and block distracting apps and websites in real-time. We do not collect or share your personal data. This permission is only used for providing the core focus features as described in our app. You can choose 'Deny' to continue without enabling this permission, but some features may not work. For more details, please review our privacy policy.",
+                text = "FlowBit requires Accessibility Service permission to detect and block distracting apps and websites in real-time. We do not collect or share your personal data. This permission is only used for providing the core focus features as described in our app. You can choose 'Deny' to continue without enabling this permission, but some features may not work. For more details, please review our privacy policy.",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
@@ -76,7 +76,7 @@ fun AccessibilityPermissionBottomSheet(
             val stepItems = listOf(
                 "Tap on Allow Button",
                 "Select Installed Apps",
-                "Enable Blockit"
+                "Enable FlowBit"
             )
             stepItems.forEachIndexed { index, item ->
                 Box(
@@ -98,7 +98,7 @@ fun AccessibilityPermissionBottomSheet(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "Blockit is 100% secure and DOES NOT monitor/collect any personal data.",
+                text = "FlowBit is 100% secure and DOES NOT monitor/collect any personal data.",
                 color = MaterialTheme.colorScheme.tertiary,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,

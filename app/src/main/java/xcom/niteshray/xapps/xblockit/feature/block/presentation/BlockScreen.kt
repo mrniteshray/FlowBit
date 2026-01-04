@@ -260,6 +260,35 @@ fun BlockScreen(
                 }
             }
 
+            // Privacy Policy Link
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .clickable {
+                            val intent = Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://mrniteshray.github.io/FlowBit/privacy.html")
+                            )
+                            context.startActivity(intent)
+                        }
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Privacy Policy",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
             item {
                 Spacer(modifier = Modifier.height(100.dp))
             }
@@ -298,7 +327,7 @@ fun BlockScreen(
             onPrivacyPolicyClick = {
                 val intent = Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://mrniteshray.github.io/Privacy-Policy/BLOCKIT")
+                    Uri.parse("https://mrniteshray.github.io/FlowBit/privacy.html")
                 )
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(intent)
