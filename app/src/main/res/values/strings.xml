@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Blockit</string>
-    <string name="accessibility_service_description">Blockit needs this to block distracting apps and improve focus</string>
+    <string name="app_name">FlowBit</string>
+    <string name="accessibility_service_description">FlowBit needs this to block distracting apps and improve focus</string>
 
 </resources>

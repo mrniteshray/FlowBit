@@ -6,17 +6,18 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,10 +27,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
@@ -41,6 +42,7 @@ import xcom.niteshray.xapps.xblockit.feature.block.components.AccessibilityPermi
 import xcom.niteshray.xapps.xblockit.feature.block.components.BatteryOptimizationPermissionBottomSheet
 import xcom.niteshray.xapps.xblockit.feature.block.components.NotificationPermissionBottomSheet
 import xcom.niteshray.xapps.xblockit.feature.block.viewmodels.WebViewModel
+import xcom.niteshray.xapps.xblockit.ui.theme.*
 import xcom.niteshray.xapps.xblockit.util.BlockAccessibility
 import xcom.niteshray.xapps.xblockit.util.BlockSharedPref
 import xcom.niteshray.xapps.xblockit.util.CheckPermissions.isAccessibilityServiceEnabled
@@ -62,18 +64,15 @@ fun BlockScreen(
     var showBatteryPermissionSheet by remember { mutableStateOf(false) }
     var showNotificationPermissionSheet by remember { mutableStateOf(false) }
     
-    // Bottom sheet state
+    // Bottom sheet states
     var showAddAppsBottomSheet by remember { mutableStateOf(false) }
+    var showAddWebsiteBottomSheet by remember { mutableStateOf(false) }
 
     // Block state
     var isBlock by remember { mutableStateOf(blockSharedPref.getBlock()) }
 
-    // Search state
-    var searchQuery by remember { mutableStateOf("") }
-
     val apps = appViewModel.app
     val weblist = webViewModel.web
-    val context2 = LocalContext.current
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
@@ -83,30 +82,23 @@ fun BlockScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Header - "Blocks" with Help button
+            // Header
             item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Blocks",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
+                Text(
+                    text = "Block What Holds You Back",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp)
+                )
             }
 
-            // App Limits Section Header
+            // Block Apps Section
             item {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -130,7 +122,7 @@ fun BlockScreen(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Add App Limit",
+                            text = "Add Apps",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -138,7 +130,9 @@ fun BlockScreen(
                 }
             }
 
-            // Apps List
+            // Apps List or Empty State
+            val blockedApps = apps.filter { it.isBlock }
+            
             if (apps.isEmpty()) {
                 item {
                     Box(
@@ -153,18 +147,21 @@ fun BlockScreen(
                         )
                     }
                 }
-            } else {
-                val filteredApps = apps.filter { app ->
-                    app.name.contains(searchQuery, ignoreCase = true) && app.isBlock
+            } else if (blockedApps.isEmpty()) {
+                item {
+                    EmptyStateCard(
+                        message = "No apps blocked yet",
+                        subMessage = "Tap 'Add Apps' to block distracting apps"
+                    )
                 }
-
-                items(filteredApps) { app ->
+            } else {
+                items(blockedApps) { app ->
                     ModernBlockedAppItem(
                         app = app,
                         onToggleChange = { isBlocked ->
                             appViewModel.updateBlock(app.packageName, isBlocked)
                             if (isBlocked) {
-                                Toast.makeText(context2, "${app.name} Blocked", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "${app.name} Blocked", Toast.LENGTH_SHORT).show()
                             }
                         }
                     )
@@ -173,7 +170,7 @@ fun BlockScreen(
 
             // Block Shorts Section
             item {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 Text(
                     text = "Block Shorts",
                     fontSize = 18.sp,
@@ -183,123 +180,93 @@ fun BlockScreen(
                 )
             }
 
-            // Shorts toggle control
+            // Shorts Card with logos only
             item {
-                Box(
+                ShortsBlockCard(
+                    isEnabled = isBlock,
+                    onToggle = { enabled ->
+                        if (enabled) {
+                            if (isAccessibilityServiceEnabled(context, BlockAccessibility::class.java)) {
+                                blockSharedPref.setBlock(true)
+                                blockSharedPref.setPauseEndTime(0L)
+                                val intent = Intent(context, PauseTimeService::class.java)
+                                context.stopService(intent)
+                                isBlock = true
+                                Toast.makeText(context, "Shorts Blocking Enabled", Toast.LENGTH_SHORT).show()
+                            } else {
+                                showAccessibilityPermissionSheet = true
+                            }
+                        } else {
+                            blockSharedPref.setBlock(false)
+                            isBlock = false
+                            Toast.makeText(context, "Shorts Blocking Disabled", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                )
+            }
+
+            // Block Websites Section
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 6.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Enable Shorts Blocking",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                text = "Block all short-form content",
-                                fontSize = 13.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
+                    Text(
+                        text = "Block Websites",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
 
-                        Switch(
-                            checked = isBlock,
-                            onCheckedChange = { enabled ->
-                                if (enabled) {
-                                    if (isAccessibilityServiceEnabled(context, BlockAccessibility::class.java)) {
-                                        blockSharedPref.setBlock(true)
-                                        blockSharedPref.setPauseEndTime(0L)
-                                        val intent = Intent(context, PauseTimeService::class.java)
-                                        context.stopService(intent)
-                                        isBlock = true
-                                        Toast.makeText(context, "Shorts Blocking Enabled", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        showAccessibilityPermissionSheet = true
-                                    }
-                                } else {
-                                    blockSharedPref.setBlock(false)
-                                    isBlock = false
-                                    Toast.makeText(context, "Shorts Blocking Disabled", Toast.LENGTH_SHORT).show()
-                                }
-                            },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
+                    TextButton(
+                        onClick = { showAddWebsiteBottomSheet = true },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add",
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Add Website",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
             }
 
-            // Short-form platforms list
-            item {
-                val shortPlatforms = listOf(
-                    ShortPlatform("YouTube Shorts", R.drawable.shorts, false),
-                    ShortPlatform("IG Reels", R.drawable.reel, false),
-                    ShortPlatform("Snapchat Spotlight", R.drawable.snapchat, false),
-                    ShortPlatform("Facebook Reels", R.drawable.facebook, false)
-                )
-
-                Column {
-                    shortPlatforms.forEach { platform ->
-                        ShortPlatformItem(platform)
-                    }
+            // Websites List or Empty State
+            if (weblist.isEmpty()) {
+                item {
+                    EmptyStateCard(
+                        message = "No websites blocked",
+                        subMessage = "Tap 'Add Website' to block distracting sites"
+                    )
+                }
+            } else {
+                items(weblist) { website ->
+                    WebsiteBlockItem(
+                        url = website,
+                        onRemove = { webViewModel.deleteWebsite(website) }
+                    )
                 }
             }
 
-            // Other Blocks Section
             item {
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = "Other blocks",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
-                )
-            }
-
-            // Block Websites
-            item {
-                OtherBlockItem(
-                    icon = Icons.Default.Home,
-                    title = "Block Websites",
-                    isAdded = weblist.isNotEmpty(),
-                    onClick = { /* Navigate to websites screen */ }
-                )
-            }
-
-            // Block Notifications
-            item {
-                OtherBlockItem(
-                    icon = Icons.Default.Notifications,
-                    title = "Block Notifications",
-                    isAdded = false,
-                    onClick = { /* Navigate to notifications screen */ }
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(80.dp))
+                Spacer(modifier = Modifier.height(100.dp))
             }
         }
     }
 
-    // Permission Bottom Sheets (keep as is)
+    // Permission Bottom Sheets
     if (showAccessibilityPermissionSheet) {
         AccessibilityPermissionBottomSheet(
             onAllow = {
@@ -358,12 +325,8 @@ fun BlockScreen(
 
     if (showNotificationPermissionSheet) {
         NotificationPermissionBottomSheet(
-            onAllow = {
-                showNotificationPermissionSheet = false
-            },
-            onDeny = {
-                showNotificationPermissionSheet = false
-            }
+            onAllow = { showNotificationPermissionSheet = false },
+            onDeny = { showNotificationPermissionSheet = false }
         )
     }
     
@@ -378,16 +341,179 @@ fun BlockScreen(
             }
         )
     }
+    
+    // Add Website Bottom Sheet
+    if (showAddWebsiteBottomSheet) {
+        AddWebsiteBottomSheet(
+            onDismiss = { showAddWebsiteBottomSheet = false },
+            onAddWebsite = { url ->
+                webViewModel.addWebsite(url)
+                Toast.makeText(context, "Website blocked", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
 }
 
-// Data class for short platforms
-data class ShortPlatform(
-    val name: String,
-    val iconRes: Int,
-    var isBlocked: Boolean
-)
+/**
+ * Empty state card for when no items are blocked
+ */
+@Composable
+private fun EmptyStateCard(
+    message: String,
+    subMessage: String
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, BorderGlow, RoundedCornerShape(16.dp))
+            .padding(32.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = message,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = subMessage,
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
 
-// Modern Blocked App Item (like Instagram card in image)
+/**
+ * Single card with horizontal shorts logos
+ */
+@Composable
+private fun ShortsBlockCard(
+    isEnabled: Boolean,
+    onToggle: (Boolean) -> Unit
+) {
+    val shortPlatforms = listOf(
+        R.drawable.shorts,
+        R.drawable.reel,
+        R.drawable.snapchat,
+        R.drawable.facebook
+    )
+    
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Platform logos in horizontal row
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                items(shortPlatforms) { iconRes ->
+                    Icon(
+                        painter = painterResource(id = iconRes),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            // Toggle
+            Switch(
+                checked = isEnabled,
+                onCheckedChange = onToggle,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            )
+        }
+    }
+}
+
+/**
+ * Website block item
+ */
+@Composable
+private fun WebsiteBlockItem(
+    url: String,
+    onRemove: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Language,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(12.dp))
+            
+            Text(
+                text = url,
+                fontSize = 15.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f),
+                maxLines = 1
+            )
+            
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Remove",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+    }
+}
+
+// Modern Blocked App Item
 @Composable
 fun ModernBlockedAppItem(
     app: Appitem,
@@ -403,171 +529,48 @@ fun ModernBlockedAppItem(
             .padding(horizontal = 20.dp, vertical = 6.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .clickable { /* Navigate to app details */ }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Image(
-                    painter = painter,
-                    contentDescription = app.name,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                )
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = app.name,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = "2h 12m spent / 2h",
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-
-                IconButton(
-                    onClick = { onToggleChange(false) },
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Remove",
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Blocking status indicator
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f))
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.tertiary)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Blocking",
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ShortPlatformItem(platform: ShortPlatform) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 6.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .clickable { /* Toggle block */ }
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(id = platform.iconRes),
-                contentDescription = platform.name,
-                tint = Color.Unspecified,
-                modifier = Modifier.size(40.dp)
+            Image(
+                painter = painter,
+                contentDescription = app.name,
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
             )
 
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = platform.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = app.name,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1
+                )
+                Text(
+                    text = "Blocking",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    fontWeight = FontWeight.Medium
                 )
             }
-        }
-    }
-}
 
-@Composable
-fun OtherBlockItem(
-    icon: ImageVector,
-    title: String,
-    isAdded: Boolean,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 6.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .clickable(onClick = onClick)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
+            IconButton(
+                onClick = { onToggleChange(false) },
+                modifier = Modifier.size(32.dp)
             ) {
                 Icon(
-                    imageVector = icon,
-                    contentDescription = title,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = if (isAdded) "Manage" else "Add block",
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 4.dp)
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Remove",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
@@ -651,6 +654,89 @@ fun AddAppsBottomSheet(
     }
 }
 
+// Add Website Bottom Sheet
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddWebsiteBottomSheet(
+    onDismiss: () -> Unit,
+    onAddWebsite: (String) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState()
+    var websiteUrl by remember { mutableStateOf("") }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+                .padding(bottom = 20.dp)
+        ) {
+            Text(
+                text = "Block Website",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            OutlinedTextField(
+                value = websiteUrl,
+                onValueChange = { websiteUrl = it },
+                placeholder = {
+                    Text(
+                        text = "Enter website URL (e.g., facebook.com)",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    cursorColor = MaterialTheme.colorScheme.primary
+                ),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Language,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Button(
+                onClick = {
+                    if (websiteUrl.isNotBlank()) {
+                        onAddWebsite(websiteUrl.trim())
+                        onDismiss()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = websiteUrl.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(
+                    text = "Block Website",
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun AppItemInBottomSheet(app: Appitem, onAddClick: () -> Unit) {
     val painter = remember(app.Icon) {
@@ -675,7 +761,7 @@ fun AppItemInBottomSheet(app: Appitem, onAddClick: () -> Unit) {
 
         Text(
             text = app.name,
-            fontSize = 16.sp,
+            fontSize = 15.sp,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f),
             maxLines = 1
