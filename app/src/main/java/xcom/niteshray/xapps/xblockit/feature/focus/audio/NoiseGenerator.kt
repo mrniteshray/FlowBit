@@ -6,22 +6,27 @@ import xcom.niteshray.xapps.xblockit.feature.focus.audio.generators.NatureGenera
 import kotlin.random.Random
 
 /**
- * Central audio generation facade.
+ * Central audio generation facade with built-in smoothing.
  * 
- * Routes generation requests to specialized generators
- * based on sound type. Handles both mono and stereo output.
- * 
- * Architecture:
- * - Classic noise (white, brown, pink): Generated locally
- * - Brainwave: Delegated to BinauralGenerator (stereo)
- * - Nature: Delegated to NatureGenerator
- * - Ambient: Delegated to AmbientGenerator
+ * All sounds are designed to be:
+ * - Soft and non-harsh
+ * - Natural sounding
+ * - Suitable for long listening sessions
+ * - Low-pass filtered to remove harsh high frequencies
  */
 object NoiseGenerator {
     
     private const val SAMPLE_RATE = 44100
-    private const val AMPLITUDE = 0.3f
     private const val MAX_16BIT = 32767
+    
+    // Reduced amplitude for softer sound (was 0.3, now 0.15)
+    private const val AMPLITUDE = 0.15f
+    
+    // ═══════════════════════════════════════════════════════════════
+    // Smoothing Filter State (Simple low-pass filter)
+    // ═══════════════════════════════════════════════════════════════
+    private var lastSample = 0.0
+    private const val SMOOTHING_FACTOR = 0.7 // Higher = smoother/darker sound
     
     // ═══════════════════════════════════════════════════════════════
     // Pink Noise State (Voss-McCartney algorithm)
@@ -41,14 +46,11 @@ object NoiseGenerator {
     
     /**
      * Generate audio buffer for specified noise type.
-     * 
-     * @param type The noise type to generate
-     * @param bufferSize Number of samples to generate
-     * @return ShortArray of PCM samples (mono or stereo depending on type)
+     * All outputs are smoothed for natural sound.
      */
     fun generate(type: NoiseType, bufferSize: Int): ShortArray {
         return when (type) {
-            // Classic noise types (mono)
+            // Classic noise types (mono) - with smoothing
             NoiseType.WHITE -> generateWhiteNoise(bufferSize)
             NoiseType.BROWN -> generateBrownNoise(bufferSize)
             NoiseType.PINK -> generatePinkNoise(bufferSize)
@@ -73,15 +75,11 @@ object NoiseGenerator {
     
     /**
      * Check if the given noise type requires stereo output.
-     * Binaural beats require headphones and stereo for effect.
      */
-    fun requiresStereo(type: NoiseType): Boolean {
-        return type.requiresStereo
-    }
+    fun requiresStereo(type: NoiseType): Boolean = type.requiresStereo
     
     /**
      * Reset all generator states.
-     * Call when changing noise type for clean transition.
      */
     fun reset() {
         // Local state
@@ -89,6 +87,7 @@ object NoiseGenerator {
         pinkRunningSum = 0
         pinkIndex = 0
         brownLastOutput = 0.0
+        lastSample = 0.0
         
         // Delegated generators
         BinauralGenerator.reset()
@@ -97,41 +96,47 @@ object NoiseGenerator {
     }
     
     // ═══════════════════════════════════════════════════════════════
-    // Classic Noise Generators (Mono)
+    // Smoothed Noise Generators
     // ═══════════════════════════════════════════════════════════════
     
     /**
-     * White noise: Random samples with uniform distribution.
-     * Sounds like static or hissing.
+     * Soft white noise with low-pass filtering.
+     * Much gentler than raw white noise.
      */
     private fun generateWhiteNoise(bufferSize: Int): ShortArray {
         return ShortArray(bufferSize) {
-            val sample = (Random.nextFloat() * 2f - 1f) * AMPLITUDE
-            (sample * MAX_16BIT).toInt().toShort()
+            val raw = Random.nextDouble() * 2.0 - 1.0
+            
+            // Apply smoothing (simple one-pole low-pass filter)
+            lastSample = lastSample * SMOOTHING_FACTOR + raw * (1.0 - SMOOTHING_FACTOR)
+            
+            val sample = lastSample * AMPLITUDE
+            (sample * MAX_16BIT).toInt().coerceIn(-32768, 32767).toShort()
         }
     }
     
     /**
-     * Brown noise: Integrated white noise (random walk).
-     * Sounds like a waterfall or rumbling wind.
-     * Heavy on bass frequencies.
+     * Smooth brown noise - naturally bass-heavy and warm.
+     * Already smooth due to integration, but softened further.
      */
     private fun generateBrownNoise(bufferSize: Int): ShortArray {
         return ShortArray(bufferSize) {
             val white = Random.nextDouble() * 2.0 - 1.0
-            brownLastOutput = (brownLastOutput + (0.02 * white)) / 1.02
             
-            val sample = (brownLastOutput * 3.5 * AMPLITUDE)
+            // Slower integration for smoother sound (was 0.02, now 0.015)
+            brownLastOutput = (brownLastOutput + (0.015 * white)) / 1.015
+            
+            // Gentler normalization (was 3.5, now 2.5)
+            val sample = (brownLastOutput * 2.5 * AMPLITUDE)
                 .coerceIn(-1.0, 1.0)
             
-            (sample * MAX_16BIT).toInt().toShort()
+            (sample * MAX_16BIT).toInt().coerceIn(-32768, 32767).toShort()
         }
     }
     
     /**
-     * Pink noise: 1/f spectrum using Voss-McCartney algorithm.
-     * Balanced between white (hissy) and brown (rumbly).
-     * Often considered most natural and easy to listen to.
+     * Smooth pink noise - balanced and natural.
+     * The most pleasant for long listening.
      */
     private fun generatePinkNoise(bufferSize: Int): ShortArray {
         return ShortArray(bufferSize) {
@@ -157,10 +162,11 @@ object NoiseGenerator {
             val white = (Random.nextInt() shr 16)
             val pinkSample = (pinkRunningSum + white) / 65536.0
             
-            val sample = (pinkSample * AMPLITUDE * 0.5)
+            // Softer amplitude (was 0.5, now 0.35)
+            val sample = (pinkSample * AMPLITUDE * 0.35)
                 .coerceIn(-1.0, 1.0)
             
-            (sample * MAX_16BIT).toInt().toShort()
+            (sample * MAX_16BIT).toInt().coerceIn(-32768, 32767).toShort()
         }
     }
 }

@@ -10,19 +10,10 @@ import kotlinx.coroutines.*
  * 
  * Features:
  * - Real-time audio generation using coroutines
+ * - Smooth fade-in on start (3 seconds)
+ * - Smooth fade-out on stop
  * - Supports both mono and stereo output (for binaural beats)
- * - Smooth transitions between sound types
  * - Automatic resource cleanup
- * 
- * Usage:
- * ```kotlin
- * val player = FocusNoisePlayer()
- * player.play(NoiseType.SOFT_RAIN)
- * // ... later
- * player.setNoiseType(NoiseType.BINAURAL_ALPHA)
- * // ... when done
- * player.release()
- * ```
  */
 class FocusNoisePlayer {
     
@@ -31,6 +22,10 @@ class FocusNoisePlayer {
         private const val MONO = AudioFormat.CHANNEL_OUT_MONO
         private const val STEREO = AudioFormat.CHANNEL_OUT_STEREO
         private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
+        
+        // Fade durations in samples
+        private const val FADE_IN_DURATION_SEC = 3.0f  // 3 second fade-in
+        private const val FADE_OUT_DURATION_SEC = 1.0f // 1 second fade-out
     }
     
     private var audioTrack: AudioTrack? = null
@@ -38,6 +33,12 @@ class FocusNoisePlayer {
     private var currentNoiseType: NoiseType = NoiseType.WHITE
     private var currentChannelConfig: Int = MONO
     private var isPlaying = false
+    
+    // Fade state
+    private var fadeInSamples = 0
+    private var fadeInProgress = 0
+    private var currentVolume = 0f
+    private var targetVolume = 1f
     
     /**
      * Buffer size calculated based on channel configuration
@@ -48,10 +49,7 @@ class FocusNoisePlayer {
     }
     
     /**
-     * Start playing the specified sound type.
-     * 
-     * Automatically handles mono/stereo switching for binaural beats.
-     * If already playing, will transition to new sound type.
+     * Start playing the specified sound type with smooth fade-in.
      */
     fun play(noiseType: NoiseType = NoiseType.WHITE) {
         if (noiseType == NoiseType.OFF) {
@@ -73,11 +71,21 @@ class FocusNoisePlayer {
         if (isPlaying) {
             // Just change noise type, generator will pick up new type
             NoiseGenerator.reset()
+            // Brief fade for transition
+            fadeInSamples = (SAMPLE_RATE * 0.5f).toInt() // 0.5 sec transition fade
+            fadeInProgress = 0
+            currentVolume = 0.7f // Start at 70% for transitions
             return
         }
         
         isPlaying = true
         NoiseGenerator.reset()
+        
+        // Initialize fade-in
+        fadeInSamples = (SAMPLE_RATE * FADE_IN_DURATION_SEC).toInt()
+        fadeInProgress = 0
+        currentVolume = 0f
+        targetVolume = 1f
         
         val bufferSize = getBufferSize(currentChannelConfig)
         
@@ -104,10 +112,13 @@ class FocusNoisePlayer {
         
         // Start playback coroutine
         playbackJob = CoroutineScope(Dispatchers.IO).launch {
-            val sampleCount = bufferSize / 2 // Half buffer for smoother streaming
+            val sampleCount = bufferSize / 2
             
             while (isActive && isPlaying) {
                 val samples = NoiseGenerator.generate(currentNoiseType, sampleCount)
+                
+                // Apply fade envelope
+                applyFadeEnvelope(samples)
                 
                 try {
                     audioTrack?.write(samples, 0, samples.size)
@@ -119,14 +130,45 @@ class FocusNoisePlayer {
     }
     
     /**
-     * Stop sound playback and release resources.
+     * Apply smooth fade-in envelope to samples
      */
-    fun stop() {
-        stopInternal()
+    private fun applyFadeEnvelope(samples: ShortArray) {
+        for (i in samples.indices) {
+            // Calculate current fade multiplier
+            if (fadeInProgress < fadeInSamples) {
+                // Smooth S-curve fade (easeInOutQuad)
+                val t = fadeInProgress.toFloat() / fadeInSamples
+                currentVolume = if (t < 0.5f) {
+                    2f * t * t
+                } else {
+                    1f - (-2f * t + 2f).let { it * it } / 2f
+                }
+                fadeInProgress++
+            } else {
+                currentVolume = targetVolume
+            }
+            
+            // Apply volume
+            samples[i] = (samples[i] * currentVolume).toInt().coerceIn(-32768, 32767).toShort()
+        }
     }
     
     /**
-     * Internal stop without clearing playing state completely.
+     * Stop sound playback with fade-out.
+     */
+    fun stop() {
+        // Quick fade out by reducing volume gradually
+        targetVolume = 0f
+        
+        // Give a brief moment for fade, then stop
+        CoroutineScope(Dispatchers.IO).launch {
+            delay(100) // Brief fade
+            stopInternal()
+        }
+    }
+    
+    /**
+     * Internal stop without fade.
      */
     private fun stopInternal() {
         isPlaying = false
@@ -140,12 +182,14 @@ class FocusNoisePlayer {
             // Ignore cleanup errors
         }
         audioTrack = null
+        
+        // Reset fade state
+        currentVolume = 0f
+        fadeInProgress = 0
     }
     
     /**
-     * Change sound type while playing.
-     * 
-     * Handles automatic stereo/mono switching if needed.
+     * Change sound type while playing with smooth transition.
      */
     fun setNoiseType(noiseType: NoiseType) {
         if (noiseType == NoiseType.OFF) {
@@ -171,6 +215,11 @@ class FocusNoisePlayer {
         currentNoiseType = noiseType
         NoiseGenerator.reset()
         
+        // Smooth transition fade
+        fadeInSamples = (SAMPLE_RATE * 0.5f).toInt()
+        fadeInProgress = 0
+        currentVolume = 0.5f
+        
         if (!isPlaying) {
             play(noiseType)
         }
@@ -195,6 +244,6 @@ class FocusNoisePlayer {
      * Release all resources. Call when done with the player.
      */
     fun release() {
-        stop()
+        stopInternal()
     }
 }

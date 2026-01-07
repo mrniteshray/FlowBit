@@ -5,68 +5,71 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * Generates ambient musical drones and tones.
+ * Generates soft, warm ambient drones and tones.
  * 
- * These are warm, sustained sounds designed to provide
- * a consistent audio bed without being distracting.
- * Perfect for deep work sessions.
+ * Design principles:
+ * - Very soft and warm
+ * - Slow, meditative evolution
+ * - No harsh attack or decay
+ * - Perfect for long focus sessions
  */
 object AmbientGenerator {
     
     private const val SAMPLE_RATE = 44100
-    private const val AMPLITUDE = 0.25f
     private const val MAX_16BIT = 32767
     
+    // Very soft amplitude
+    private const val AMPLITUDE = 0.10f
+    
     // === Lo-Fi Drone State ===
-    // Multiple oscillators at musical intervals
-    private var dronePhase1 = 0.0  // Root note
+    private var dronePhase1 = 0.0  // Root
     private var dronePhase2 = 0.0  // Fifth
     private var dronePhase3 = 0.0  // Octave
-    private var dronePhase4 = 0.0  // Sub-octave
-    private var droneWobble = 0.0  // Slow pitch variation
+    private var dronePhase4 = 0.0  // Sub
+    private var droneWobble = 0.0
+    private var droneSmoothOutput = 0.0
     
     // === Deep Hum State ===
     private var humPhase = 0.0
     private var humHarmonic2 = 0.0
     private var humHarmonic3 = 0.0
     private var humBreathPhase = 0.0
+    private var humSmoothOutput = 0.0
     
-    // Base frequencies
-    private const val DRONE_ROOT = 110.0  // A2 - warm bass frequency
-    private const val HUM_FREQ = 55.0     // A1 - deep bass
+    // Warm, low base frequencies
+    private const val DRONE_ROOT = 85.0   // Low, warm (was 110)
+    private const val HUM_FREQ = 45.0     // Deep bass (was 55)
     
     /**
-     * Generate a lo-fi style drone.
-     * 
-     * Multiple detuned sine waves at consonant intervals
-     * with subtle pitch wobble for analog warmth.
-     * Think: Ambient music, synthesizer pads
+     * Generate a warm, lo-fi style drone.
+     * Soft, sustained, meditative.
      */
     fun generateLoFiDrone(sampleCount: Int): ShortArray {
         val root = DRONE_ROOT
-        val fifth = root * 1.5       // Perfect fifth
-        val octave = root * 2.0      // Octave
-        val subOctave = root * 0.5   // Sub bass
+        val fifth = root * 1.5
+        val octave = root * 2.0
+        val subOctave = root * 0.5
         
-        // Subtle detuning for warmth (in cents)
-        val detune1 = 1.0 + (sin(droneWobble) * 0.002)
-        val detune2 = 1.0 + (sin(droneWobble * 1.3) * 0.003)
-        val detune3 = 1.0 + (sin(droneWobble * 0.7) * 0.002)
-        
-        val wobbleIncrement = 2.0 * PI * 0.05 / SAMPLE_RATE // Very slow
+        // Very slow wobble for organic feel
+        val wobbleIncrement = 2.0 * PI * 0.02 / SAMPLE_RATE
         
         return ShortArray(sampleCount) {
-            // Update wobble
+            // Update wobble (very subtle pitch variation)
             droneWobble += wobbleIncrement
             if (droneWobble > 2.0 * PI) droneWobble -= 2.0 * PI
             
-            // Generate layered sine waves
-            val wave1 = sin(dronePhase1) * 0.35  // Root - loudest
-            val wave2 = sin(dronePhase2) * 0.25  // Fifth
-            val wave3 = sin(dronePhase3) * 0.20  // Octave
-            val wave4 = sin(dronePhase4) * 0.20  // Sub-octave
+            // Subtle detuning for warmth
+            val detune1 = 1.0 + sin(droneWobble) * 0.001
+            val detune2 = 1.0 + sin(droneWobble * 1.3) * 0.0015
+            val detune3 = 1.0 + sin(droneWobble * 0.7) * 0.001
             
-            // Advance phases with detuning
+            // Generate soft layered sine waves
+            val wave1 = sin(dronePhase1) * 0.4   // Root - prominent
+            val wave2 = sin(dronePhase2) * 0.25  // Fifth - supporting
+            val wave3 = sin(dronePhase3) * 0.15  // Octave - color
+            val wave4 = sin(dronePhase4) * 0.2   // Sub - warmth
+            
+            // Advance phases
             dronePhase1 += 2.0 * PI * root * detune1 / SAMPLE_RATE
             dronePhase2 += 2.0 * PI * fifth * detune2 / SAMPLE_RATE
             dronePhase3 += 2.0 * PI * octave * detune3 / SAMPLE_RATE
@@ -78,39 +81,42 @@ object AmbientGenerator {
             if (dronePhase3 > 2.0 * PI) dronePhase3 -= 2.0 * PI
             if (dronePhase4 > 2.0 * PI) dronePhase4 -= 2.0 * PI
             
-            // Mix with soft saturation
-            val mix = (wave1 + wave2 + wave3 + wave4)
-            val saturated = softSaturate(mix)
+            // Mix and smooth
+            val rawMix = wave1 + wave2 + wave3 + wave4
             
-            (saturated * AMPLITUDE * MAX_16BIT).toInt().toShort()
+            // Heavy smoothing for warm, soft sound
+            droneSmoothOutput = droneSmoothOutput * 0.95 + rawMix * 0.05
+            
+            val sample = softSaturate(droneSmoothOutput) * AMPLITUDE
+            (sample * MAX_16BIT).toInt().coerceIn(-32768, 32767).toShort()
         }
     }
     
     /**
-     * Generate a deep hum.
-     * 
-     * Low bass frequency with subtle harmonics.
-     * Similar to electrical hum but musical and warm.
-     * Great for grounding and focus.
+     * Generate a deep, warm hum.
+     * Like a gentle bass meditation tone.
      */
     fun generateDeepHum(sampleCount: Int): ShortArray {
         val fundamental = HUM_FREQ
-        val harmonic2Freq = fundamental * 2.0  // First harmonic
-        val harmonic3Freq = fundamental * 3.0  // Second harmonic
+        val harmonic2Freq = fundamental * 2.0
+        val harmonic3Freq = fundamental * 3.0
         
-        val breathRate = 0.08 // Very slow "breathing" modulation
+        // Very slow breathing modulation
+        val breathRate = 0.04 // ~25 second cycle
         val breathIncrement = 2.0 * PI * breathRate / SAMPLE_RATE
         
         return ShortArray(sampleCount) {
-            // Slow amplitude "breathing" for organic feel
+            // Slow amplitude breathing for organic feel
             humBreathPhase += breathIncrement
             if (humBreathPhase > 2.0 * PI) humBreathPhase -= 2.0 * PI
-            val breath = (sin(humBreathPhase) * 0.15 + 0.85) // 70-100% amplitude
             
-            // Generate fundamental and harmonics
+            // Gentle breathing curve (80-100% amplitude)
+            val breath = sin(humBreathPhase) * 0.1 + 0.9
+            
+            // Generate fundamental and soft harmonics
             val fund = sin(humPhase) * 0.6
             val harm2 = sin(humHarmonic2) * 0.25
-            val harm3 = sin(humHarmonic3) * 0.15
+            val harm3 = sin(humHarmonic3) * 0.1
             
             // Advance phases
             humPhase += 2.0 * PI * fundamental / SAMPLE_RATE
@@ -122,23 +128,28 @@ object AmbientGenerator {
             if (humHarmonic2 > 2.0 * PI) humHarmonic2 -= 2.0 * PI
             if (humHarmonic3 > 2.0 * PI) humHarmonic3 -= 2.0 * PI
             
-            // Add very subtle noise for texture
-            val noise = (Random.nextDouble() - 0.5) * 0.02
+            // Tiny bit of noise for analog warmth
+            val noise = (Random.nextDouble() - 0.5) * 0.008
             
-            val sample = (fund + harm2 + harm3 + noise) * breath * AMPLITUDE
-            (sample.coerceIn(-1.0, 1.0) * MAX_16BIT).toInt().toShort()
+            val rawMix = (fund + harm2 + harm3 + noise) * breath
+            
+            // Smooth the output
+            humSmoothOutput = humSmoothOutput * 0.9 + rawMix * 0.1
+            
+            val sample = humSmoothOutput * AMPLITUDE
+            (sample.coerceIn(-1.0, 1.0) * MAX_16BIT).toInt().coerceIn(-32768, 32767).toShort()
         }
     }
     
     /**
-     * Soft saturation for analog warmth
-     * Gently compresses peaks for a warmer sound
+     * Soft saturation for warm, rounded sound
      */
     private fun softSaturate(x: Double): Double {
+        // Gentle soft clipping that rounds off peaks
         return when {
-            x > 1.0 -> 1.0
-            x < -1.0 -> -1.0
-            else -> x - (x * x * x) / 3.0 // Soft clip curve
+            x > 0.8 -> 0.8 + (x - 0.8) * 0.2
+            x < -0.8 -> -0.8 + (x + 0.8) * 0.2
+            else -> x
         }
     }
     
@@ -151,9 +162,11 @@ object AmbientGenerator {
         dronePhase3 = 0.0
         dronePhase4 = 0.0
         droneWobble = 0.0
+        droneSmoothOutput = 0.0
         humPhase = 0.0
         humHarmonic2 = 0.0
         humHarmonic3 = 0.0
         humBreathPhase = 0.0
+        humSmoothOutput = 0.0
     }
 }

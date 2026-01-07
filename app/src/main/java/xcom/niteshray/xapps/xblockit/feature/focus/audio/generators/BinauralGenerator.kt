@@ -2,64 +2,61 @@ package xcom.niteshray.xapps.xblockit.feature.focus.audio.generators
 
 import kotlin.math.PI
 import kotlin.math.sin
-import kotlin.random.Random
 
 /**
- * Generates binaural beat audio for brainwave entrainment.
+ * Generates soft binaural beat audio for brainwave entrainment.
  * 
- * Binaural beats work by playing slightly different frequencies
- * in each ear, causing the brain to perceive a third "beat" at
- * the difference frequency.
+ * Designed for comfortable long-term listening:
+ * - Very soft volume
+ * - Pure, clean sine waves
+ * - No harsh frequencies
  * 
  * Requirements:
  * - MUST be listened to with headphones for effect
  * - Stereo output (left and right channels differ)
- * 
- * Frequency ranges:
- * - Alpha (8-12 Hz): Relaxed focus, creativity, light meditation
- * - Beta (13-30 Hz): Active concentration, alertness, problem-solving
  */
 object BinauralGenerator {
     
     private const val SAMPLE_RATE = 44100
-    private const val AMPLITUDE = 0.25f // Softer volume for background
     private const val MAX_16BIT = 32767
     
-    // Base carrier frequency (comfortable for most people)
-    private const val BASE_FREQUENCY = 200.0
+    // Very soft amplitude for comfortable background listening
+    private const val AMPLITUDE = 0.12f
     
-    // Beat frequencies for different states
+    // Lower base frequency for warmer, less harsh sound
+    private const val BASE_FREQUENCY = 150.0  // Was 200, now warmer
+    
+    // Beat frequencies
     private const val ALPHA_BEAT = 10.0  // 10 Hz for relaxed focus
-    private const val BETA_BEAT = 15.0   // 15 Hz for active concentration
+    private const val BETA_BEAT = 14.0   // 14 Hz for concentration (was 15)
     
-    // Phase tracking for continuous playback
+    // Phase tracking
     private var leftPhase = 0.0
     private var rightPhase = 0.0
     
+    // Smoothing for gentle start
+    private var sampleCount = 0L
+    
     /**
      * Generate alpha wave binaural beat (10 Hz)
-     * Good for: relaxed focus, creativity, reduced anxiety
-     * 
-     * @return Stereo interleaved samples [L, R, L, R, ...]
+     * Warm, relaxing, creativity-enhancing
      */
     fun generateAlpha(sampleCount: Int): ShortArray {
         return generateBinaural(sampleCount, ALPHA_BEAT)
     }
     
     /**
-     * Generate beta wave binaural beat (15 Hz)
-     * Good for: active concentration, mental alertness
-     * 
-     * @return Stereo interleaved samples [L, R, L, R, ...]
+     * Generate beta wave binaural beat (14 Hz)
+     * Focused, alert, but not harsh
      */
     fun generateBeta(sampleCount: Int): ShortArray {
         return generateBinaural(sampleCount, BETA_BEAT)
     }
     
     /**
-     * Core binaural generation with specified beat frequency
+     * Core binaural generation with smooth, warm sound
      */
-    private fun generateBinaural(sampleCount: Int, beatFrequency: Double): ShortArray {
+    private fun generateBinaural(bufferSampleCount: Int, beatFrequency: Double): ShortArray {
         val leftFreq = BASE_FREQUENCY
         val rightFreq = BASE_FREQUENCY + beatFrequency
         
@@ -67,12 +64,21 @@ object BinauralGenerator {
         val rightIncrement = 2.0 * PI * rightFreq / SAMPLE_RATE
         
         // Stereo requires 2x samples (interleaved L/R)
-        val stereoBuffer = ShortArray(sampleCount * 2)
+        val stereoBuffer = ShortArray(bufferSampleCount * 2)
         
-        for (i in 0 until sampleCount) {
-            // Generate pure sine waves for each ear
-            val leftSample = (sin(leftPhase) * AMPLITUDE * MAX_16BIT).toInt().toShort()
-            val rightSample = (sin(rightPhase) * AMPLITUDE * MAX_16BIT).toInt().toShort()
+        for (i in 0 until bufferSampleCount) {
+            // Generate pure sine waves with slight harmonic warmth
+            val leftBase = sin(leftPhase)
+            val rightBase = sin(rightPhase)
+            
+            // Add very subtle second harmonic for warmth (barely audible)
+            val leftWarm = leftBase * 0.95 + sin(leftPhase * 2) * 0.05
+            val rightWarm = rightBase * 0.95 + sin(rightPhase * 2) * 0.05
+            
+            val leftSample = (leftWarm * AMPLITUDE * MAX_16BIT).toInt()
+                .coerceIn(-32768, 32767).toShort()
+            val rightSample = (rightWarm * AMPLITUDE * MAX_16BIT).toInt()
+                .coerceIn(-32768, 32767).toShort()
             
             // Interleave: [Left, Right, Left, Right, ...]
             stereoBuffer[i * 2] = leftSample
@@ -85,6 +91,8 @@ object BinauralGenerator {
             // Keep phases in reasonable range
             if (leftPhase > 2.0 * PI) leftPhase -= 2.0 * PI
             if (rightPhase > 2.0 * PI) rightPhase -= 2.0 * PI
+            
+            sampleCount++
         }
         
         return stereoBuffer
@@ -96,5 +104,6 @@ object BinauralGenerator {
     fun reset() {
         leftPhase = 0.0
         rightPhase = 0.0
+        sampleCount = 0L
     }
 }

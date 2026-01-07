@@ -1,146 +1,162 @@
 package xcom.niteshray.xapps.xblockit.feature.focus.audio.generators
 
 import kotlin.math.PI
+import kotlin.math.exp
 import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * Generates nature-inspired ambient sounds.
+ * Generates soft, natural-sounding ambient sounds.
  * 
- * These are synthesized approximations designed for focus,
- * not field recordings. They provide consistent, loopable
- * ambient backgrounds that mask distractions.
+ * Design principles:
+ * - Extremely soft and non-intrusive
+ * - Natural, organic flow
+ * - No harsh frequencies
+ * - Suitable for hours of listening
  */
 object NatureGenerator {
     
     private const val SAMPLE_RATE = 44100
-    private const val AMPLITUDE = 0.3f
     private const val MAX_16BIT = 32767
     
+    // Very soft amplitude for background listening
+    private const val AMPLITUDE = 0.12f
+    
     // === Rain State ===
-    private var rainPhase = 0.0
-    private val rainDroplets = mutableListOf<Droplet>()
+    private val rainDroplets = mutableListOf<SoftDroplet>()
+    private var rainBaseNoise = 0.0
     
     // === Ocean State ===
-    private var oceanPhase = 0.0
-    private var waveEnvelope = 0.0
-    private var brownState = 0.0
+    private var wavePhase = 0.0
+    private var oceanBrownState = 0.0
+    private var oceanSmoothState = 0.0
     
     // === Wind State ===
-    private var windPhase = 0.0
     private var windLfoPhase = 0.0
     private var windBrownState = 0.0
+    private var windSmoothState = 0.0
     
-    // Pink noise state (shared)
+    // Shared pink noise state
     private val pinkRows = IntArray(16) { 0 }
     private var pinkRunningSum = 0
     private var pinkIndex = 0
+    private var pinkSmoothState = 0.0
     
     /**
      * Generate soft rain ambience.
-     * 
-     * Combines filtered pink noise (steady rain) with
-     * occasional random droplet impulses for realism.
+     * Very gentle, like distant rain on a window.
      */
     fun generateSoftRain(sampleCount: Int): ShortArray {
         return ShortArray(sampleCount) { i ->
-            // Base: Soft pink noise (rain bed)
-            val pinkSample = generatePinkSample() * 0.4
+            // Very soft pink noise base (distant rain sound)
+            val pinkSample = generateSmoothPinkSample() * 0.6
             
-            // Add random droplet sounds
-            if (Random.nextFloat() < 0.0003f) {
-                rainDroplets.add(Droplet(
-                    amplitude = Random.nextFloat() * 0.3f + 0.1f,
-                    frequency = Random.nextFloat() * 2000f + 3000f,
-                    decay = Random.nextFloat() * 0.0005f + 0.0002f,
+            // Occasional very soft droplet
+            if (Random.nextFloat() < 0.0001f) { // Much rarer droplets
+                rainDroplets.add(SoftDroplet(
+                    amplitude = Random.nextFloat() * 0.15f + 0.05f, // Softer
+                    frequency = Random.nextFloat() * 1500f + 2000f, // Lower freq
+                    decay = 0.9985f, // Slower decay for softer sound
                     phase = 0.0
                 ))
             }
             
-            // Process active droplets
+            // Process droplets with soft envelope
             var dropletSum = 0.0
             val iterator = rainDroplets.iterator()
             while (iterator.hasNext()) {
                 val droplet = iterator.next()
-                dropletSum += sin(droplet.phase) * droplet.amplitude
+                // Soft sine for droplet (not harsh)
+                val dropSound = sin(droplet.phase) * droplet.amplitude
+                dropletSum += dropSound * smoothEnvelope(droplet.amplitude)
+                
                 droplet.phase += 2.0 * PI * droplet.frequency / SAMPLE_RATE
-                droplet.amplitude *= (1.0f - droplet.decay)
+                droplet.amplitude *= droplet.decay
+                
                 if (droplet.amplitude < 0.001f) iterator.remove()
             }
             
-            // Limit droplet count to avoid memory issues
-            while (rainDroplets.size > 20) {
+            // Limit droplets
+            while (rainDroplets.size > 10) {
                 rainDroplets.removeAt(0)
             }
             
-            val sample = (pinkSample + dropletSum * 0.3) * AMPLITUDE
-            (sample.coerceIn(-1.0, 1.0) * MAX_16BIT).toInt().toShort()
+            // Smooth the final mix
+            rainBaseNoise = rainBaseNoise * 0.8 + (pinkSample + dropletSum * 0.2) * 0.2
+            
+            val sample = rainBaseNoise * AMPLITUDE
+            (sample.coerceIn(-1.0, 1.0) * MAX_16BIT).toInt().coerceIn(-32768, 32767).toShort()
         }
     }
     
     /**
-     * Generate ocean waves.
-     * 
-     * Brown noise modulated by a slow sine wave envelope
-     * to create the rhythmic rise and fall of waves.
-     * Wave period: ~8-12 seconds for realistic feel.
+     * Generate gentle ocean waves.
+     * Slow, rhythmic, deeply calming.
      */
     fun generateOceanWaves(sampleCount: Int): ShortArray {
-        val wavePeriod = 10.0 // seconds per wave cycle
-        val waveIncrement = 1.0 / (SAMPLE_RATE * wavePeriod)
+        // Very slow wave period for natural feel
+        val wavePeriodSec = 12.0 // 12 seconds per wave
+        val waveIncrement = 1.0 / (SAMPLE_RATE * wavePeriodSec)
         
         return ShortArray(sampleCount) {
-            // Generate brown noise base
+            // Smooth brown noise base
             val white = Random.nextDouble() * 2.0 - 1.0
-            brownState = (brownState + 0.02 * white) / 1.02
-            val brownSample = brownState * 3.5
+            oceanBrownState = (oceanBrownState + 0.01 * white) / 1.01
             
-            // Apply wave envelope (smooth rise and fall)
-            waveEnvelope += waveIncrement
-            if (waveEnvelope > 1.0) waveEnvelope -= 1.0
+            // Extra smoothing
+            oceanSmoothState = oceanSmoothState * 0.9 + oceanBrownState * 0.1
             
-            // Create asymmetric wave shape (longer retreat than approach)
-            val envelope = (sin(waveEnvelope * 2.0 * PI) * 0.4 + 0.6)
+            // Smooth wave envelope with long tail
+            wavePhase += waveIncrement
+            if (wavePhase > 1.0) wavePhase -= 1.0
             
-            val sample = brownSample * envelope * AMPLITUDE
-            (sample.coerceIn(-1.0, 1.0) * MAX_16BIT).toInt().toShort()
+            // Asymmetric, natural wave shape
+            // Slow build, gentle crest, long fade
+            val waveShape = sin(wavePhase * PI) // Half sine for natural wave shape
+            val envelope = waveShape * waveShape * 0.5 + 0.3 // Soft dynamics
+            
+            val sample = oceanSmoothState * 2.0 * envelope * AMPLITUDE
+            (sample.coerceIn(-1.0, 1.0) * MAX_16BIT).toInt().coerceIn(-32768, 32767).toShort()
         }
     }
     
     /**
-     * Generate wind ambience.
-     * 
-     * Filtered brown noise with a slow LFO (Low Frequency Oscillator)
-     * modulating the intensity to create gusting effect.
+     * Generate gentle wind ambience.
+     * Soft, natural, barely there.
      */
     fun generateWind(sampleCount: Int): ShortArray {
-        val lfoFrequency = 0.1 // Very slow oscillation (10 sec period)
+        // Very slow LFO for gentle gusting
+        val lfoFrequency = 0.05 // 20 second period
         val lfoIncrement = 2.0 * PI * lfoFrequency / SAMPLE_RATE
         
         return ShortArray(sampleCount) {
-            // Brown noise base
+            // Very smooth brown noise
             val white = Random.nextDouble() * 2.0 - 1.0
-            windBrownState = (windBrownState + 0.015 * white) / 1.015
+            windBrownState = (windBrownState + 0.008 * white) / 1.008
             
-            // LFO for gusting effect
+            // Extra smoothing layer
+            windSmoothState = windSmoothState * 0.95 + windBrownState * 0.05
+            
+            // Multi-layered slow LFO for natural variation
             windLfoPhase += lfoIncrement
             if (windLfoPhase > 2.0 * PI) windLfoPhase -= 2.0 * PI
             
-            // Multi-layered LFO for more natural variation
-            val lfo1 = sin(windLfoPhase) * 0.3
-            val lfo2 = sin(windLfoPhase * 0.37) * 0.2 // Slower, offset
-            val lfo3 = sin(windLfoPhase * 2.1) * 0.1  // Faster flutter
-            val combinedLfo = (lfo1 + lfo2 + lfo3 + 0.7).coerceIn(0.3, 1.0)
+            val lfo1 = sin(windLfoPhase) * 0.2
+            val lfo2 = sin(windLfoPhase * 0.3) * 0.15
+            val lfo3 = sin(windLfoPhase * 0.7) * 0.1
             
-            val sample = windBrownState * 3.0 * combinedLfo * AMPLITUDE
-            (sample.coerceIn(-1.0, 1.0) * MAX_16BIT).toInt().toShort()
+            // Combined envelope - always stays soft
+            val combinedLfo = (lfo1 + lfo2 + lfo3 + 0.55).coerceIn(0.2, 0.8)
+            
+            val sample = windSmoothState * 2.0 * combinedLfo * AMPLITUDE
+            (sample.coerceIn(-1.0, 1.0) * MAX_16BIT).toInt().coerceIn(-32768, 32767).toShort()
         }
     }
     
     /**
-     * Generate a single pink noise sample using Voss-McCartney algorithm
+     * Generate smoothed pink noise sample
      */
-    private fun generatePinkSample(): Double {
+    private fun generateSmoothPinkSample(): Double {
         val lastIndex = pinkIndex
         pinkIndex++
         if (pinkIndex >= 65536) pinkIndex = 0
@@ -160,30 +176,43 @@ object NatureGenerator {
         }
         
         val white = (Random.nextInt() shr 16)
-        return (pinkRunningSum + white) / 65536.0
+        val rawPink = (pinkRunningSum + white) / 65536.0
+        
+        // Smooth the pink noise
+        pinkSmoothState = pinkSmoothState * 0.7 + rawPink * 0.3
+        return pinkSmoothState
+    }
+    
+    /**
+     * Soft envelope for natural attack/decay
+     */
+    private fun smoothEnvelope(amplitude: Float): Double {
+        // Soft curve that makes sounds feel natural
+        return (1.0 - exp(-amplitude.toDouble() * 10.0))
     }
     
     /**
      * Reset all internal state
      */
     fun reset() {
-        rainPhase = 0.0
         rainDroplets.clear()
-        oceanPhase = 0.0
-        waveEnvelope = 0.0
-        brownState = 0.0
-        windPhase = 0.0
+        rainBaseNoise = 0.0
+        wavePhase = 0.0
+        oceanBrownState = 0.0
+        oceanSmoothState = 0.0
         windLfoPhase = 0.0
         windBrownState = 0.0
+        windSmoothState = 0.0
         pinkRows.fill(0)
         pinkRunningSum = 0
         pinkIndex = 0
+        pinkSmoothState = 0.0
     }
     
     /**
-     * Internal class to track individual rain droplet sounds
+     * Soft droplet for rain sound
      */
-    private data class Droplet(
+    private data class SoftDroplet(
         var amplitude: Float,
         val frequency: Float,
         val decay: Float,
