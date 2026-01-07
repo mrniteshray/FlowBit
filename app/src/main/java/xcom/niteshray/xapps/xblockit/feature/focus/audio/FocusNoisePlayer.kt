@@ -6,31 +6,52 @@ import android.media.AudioTrack
 import kotlinx.coroutines.*
 
 /**
- * Manages focus noise playback using AudioTrack.
+ * Manages focus sound playback using AudioTrack.
  * 
- * Generates noise programmatically in real-time using coroutines.
- * Supports smooth transitions between noise types.
+ * Features:
+ * - Real-time audio generation using coroutines
+ * - Supports both mono and stereo output (for binaural beats)
+ * - Smooth transitions between sound types
+ * - Automatic resource cleanup
+ * 
+ * Usage:
+ * ```kotlin
+ * val player = FocusNoisePlayer()
+ * player.play(NoiseType.SOFT_RAIN)
+ * // ... later
+ * player.setNoiseType(NoiseType.BINAURAL_ALPHA)
+ * // ... when done
+ * player.release()
+ * ```
  */
 class FocusNoisePlayer {
     
     companion object {
         private const val SAMPLE_RATE = 44100
-        private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_MONO
+        private const val MONO = AudioFormat.CHANNEL_OUT_MONO
+        private const val STEREO = AudioFormat.CHANNEL_OUT_STEREO
         private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
     }
     
     private var audioTrack: AudioTrack? = null
     private var playbackJob: Job? = null
     private var currentNoiseType: NoiseType = NoiseType.WHITE
+    private var currentChannelConfig: Int = MONO
     private var isPlaying = false
     
-    private val bufferSize: Int by lazy {
-        AudioTrack.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
+    /**
+     * Buffer size calculated based on channel configuration
+     */
+    private fun getBufferSize(channelConfig: Int): Int {
+        return AudioTrack.getMinBufferSize(SAMPLE_RATE, channelConfig, AUDIO_FORMAT)
             .coerceAtLeast(4096)
     }
     
     /**
-     * Start playing the specified noise type
+     * Start playing the specified sound type.
+     * 
+     * Automatically handles mono/stereo switching for binaural beats.
+     * If already playing, will transition to new sound type.
      */
     fun play(noiseType: NoiseType = NoiseType.WHITE) {
         if (noiseType == NoiseType.OFF) {
@@ -38,7 +59,16 @@ class FocusNoisePlayer {
             return
         }
         
+        val needsStereo = noiseType.requiresStereo
+        val requiredChannelConfig = if (needsStereo) STEREO else MONO
+        
+        // If channel config changed, we need to recreate AudioTrack
+        if (isPlaying && currentChannelConfig != requiredChannelConfig) {
+            stopInternal()
+        }
+        
         currentNoiseType = noiseType
+        currentChannelConfig = requiredChannelConfig
         
         if (isPlaying) {
             // Just change noise type, generator will pick up new type
@@ -49,7 +79,9 @@ class FocusNoisePlayer {
         isPlaying = true
         NoiseGenerator.reset()
         
-        // Create AudioTrack
+        val bufferSize = getBufferSize(currentChannelConfig)
+        
+        // Create AudioTrack with appropriate channel configuration
         audioTrack = AudioTrack.Builder()
             .setAudioAttributes(
                 AudioAttributes.Builder()
@@ -60,7 +92,7 @@ class FocusNoisePlayer {
             .setAudioFormat(
                 AudioFormat.Builder()
                     .setSampleRate(SAMPLE_RATE)
-                    .setChannelMask(CHANNEL_CONFIG)
+                    .setChannelMask(currentChannelConfig)
                     .setEncoding(AUDIO_FORMAT)
                     .build()
             )
@@ -72,10 +104,10 @@ class FocusNoisePlayer {
         
         // Start playback coroutine
         playbackJob = CoroutineScope(Dispatchers.IO).launch {
-            val buffer = ShortArray(bufferSize / 2) // Half buffer for smoother streaming
+            val sampleCount = bufferSize / 2 // Half buffer for smoother streaming
             
             while (isActive && isPlaying) {
-                val samples = NoiseGenerator.generate(currentNoiseType, buffer.size)
+                val samples = NoiseGenerator.generate(currentNoiseType, sampleCount)
                 
                 try {
                     audioTrack?.write(samples, 0, samples.size)
@@ -87,9 +119,16 @@ class FocusNoisePlayer {
     }
     
     /**
-     * Stop noise playback
+     * Stop sound playback and release resources.
      */
     fun stop() {
+        stopInternal()
+    }
+    
+    /**
+     * Internal stop without clearing playing state completely.
+     */
+    private fun stopInternal() {
         isPlaying = false
         playbackJob?.cancel()
         playbackJob = null
@@ -104,11 +143,28 @@ class FocusNoisePlayer {
     }
     
     /**
-     * Change noise type while playing
+     * Change sound type while playing.
+     * 
+     * Handles automatic stereo/mono switching if needed.
      */
     fun setNoiseType(noiseType: NoiseType) {
         if (noiseType == NoiseType.OFF) {
             stop()
+            return
+        }
+        
+        val needsStereo = noiseType.requiresStereo
+        val requiredChannelConfig = if (needsStereo) STEREO else MONO
+        
+        // If switching between mono/stereo, restart playback
+        if (isPlaying && currentChannelConfig != requiredChannelConfig) {
+            currentNoiseType = noiseType
+            currentChannelConfig = requiredChannelConfig
+            NoiseGenerator.reset()
+            
+            // Restart with new channel config
+            stopInternal()
+            play(noiseType)
             return
         }
         
@@ -121,7 +177,7 @@ class FocusNoisePlayer {
     }
     
     /**
-     * Get current noise type
+     * Get current sound type
      */
     fun getCurrentNoiseType(): NoiseType = currentNoiseType
     
@@ -131,7 +187,12 @@ class FocusNoisePlayer {
     fun isPlaying(): Boolean = isPlaying
     
     /**
-     * Release all resources
+     * Check if current sound requires stereo (headphones recommended)
+     */
+    fun isStereoRequired(): Boolean = currentNoiseType.requiresStereo
+    
+    /**
+     * Release all resources. Call when done with the player.
      */
     fun release() {
         stop()

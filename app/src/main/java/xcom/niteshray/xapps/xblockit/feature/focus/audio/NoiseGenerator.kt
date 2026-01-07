@@ -1,33 +1,110 @@
 package xcom.niteshray.xapps.xblockit.feature.focus.audio
 
-import kotlin.math.sqrt
+import xcom.niteshray.xapps.xblockit.feature.focus.audio.generators.AmbientGenerator
+import xcom.niteshray.xapps.xblockit.feature.focus.audio.generators.BinauralGenerator
+import xcom.niteshray.xapps.xblockit.feature.focus.audio.generators.NatureGenerator
 import kotlin.random.Random
 
 /**
- * Generates PCM audio samples for different noise types.
+ * Central audio generation facade.
  * 
- * Noise generation algorithms:
- * - White: Random samples (uniform distribution)
- * - Brown: Integrated white noise (random walk)
- * - Pink: Voss-McCartney algorithm for 1/f noise
+ * Routes generation requests to specialized generators
+ * based on sound type. Handles both mono and stereo output.
+ * 
+ * Architecture:
+ * - Classic noise (white, brown, pink): Generated locally
+ * - Brainwave: Delegated to BinauralGenerator (stereo)
+ * - Nature: Delegated to NatureGenerator
+ * - Ambient: Delegated to AmbientGenerator
  */
 object NoiseGenerator {
     
-    private const val AMPLITUDE = 0.3f // Volume level (0.0 - 1.0)
+    private const val SAMPLE_RATE = 44100
+    private const val AMPLITUDE = 0.3f
     private const val MAX_16BIT = 32767
     
-    // Pink noise state (Voss-McCartney algorithm)
+    // ═══════════════════════════════════════════════════════════════
+    // Pink Noise State (Voss-McCartney algorithm)
+    // ═══════════════════════════════════════════════════════════════
     private val pinkRows = IntArray(16) { 0 }
     private var pinkRunningSum = 0
     private var pinkIndex = 0
     
-    // Brown noise state
+    // ═══════════════════════════════════════════════════════════════
+    // Brown Noise State
+    // ═══════════════════════════════════════════════════════════════
     private var brownLastOutput = 0.0
     
+    // ═══════════════════════════════════════════════════════════════
+    // Public API
+    // ═══════════════════════════════════════════════════════════════
+    
     /**
-     * Generate a buffer of white noise samples
+     * Generate audio buffer for specified noise type.
+     * 
+     * @param type The noise type to generate
+     * @param bufferSize Number of samples to generate
+     * @return ShortArray of PCM samples (mono or stereo depending on type)
      */
-    fun generateWhiteNoise(bufferSize: Int): ShortArray {
+    fun generate(type: NoiseType, bufferSize: Int): ShortArray {
+        return when (type) {
+            // Classic noise types (mono)
+            NoiseType.WHITE -> generateWhiteNoise(bufferSize)
+            NoiseType.BROWN -> generateBrownNoise(bufferSize)
+            NoiseType.PINK -> generatePinkNoise(bufferSize)
+            
+            // Brainwave types (stereo - 2x buffer size)
+            NoiseType.BINAURAL_ALPHA -> BinauralGenerator.generateAlpha(bufferSize)
+            NoiseType.BINAURAL_BETA -> BinauralGenerator.generateBeta(bufferSize)
+            
+            // Nature types (mono)
+            NoiseType.SOFT_RAIN -> NatureGenerator.generateSoftRain(bufferSize)
+            NoiseType.OCEAN_WAVES -> NatureGenerator.generateOceanWaves(bufferSize)
+            NoiseType.WIND -> NatureGenerator.generateWind(bufferSize)
+            
+            // Ambient types (mono)
+            NoiseType.LO_FI_DRONE -> AmbientGenerator.generateLoFiDrone(bufferSize)
+            NoiseType.DEEP_HUM -> AmbientGenerator.generateDeepHum(bufferSize)
+            
+            // Off - silence
+            NoiseType.OFF -> ShortArray(bufferSize) { 0 }
+        }
+    }
+    
+    /**
+     * Check if the given noise type requires stereo output.
+     * Binaural beats require headphones and stereo for effect.
+     */
+    fun requiresStereo(type: NoiseType): Boolean {
+        return type.requiresStereo
+    }
+    
+    /**
+     * Reset all generator states.
+     * Call when changing noise type for clean transition.
+     */
+    fun reset() {
+        // Local state
+        pinkRows.fill(0)
+        pinkRunningSum = 0
+        pinkIndex = 0
+        brownLastOutput = 0.0
+        
+        // Delegated generators
+        BinauralGenerator.reset()
+        NatureGenerator.reset()
+        AmbientGenerator.reset()
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // Classic Noise Generators (Mono)
+    // ═══════════════════════════════════════════════════════════════
+    
+    /**
+     * White noise: Random samples with uniform distribution.
+     * Sounds like static or hissing.
+     */
+    private fun generateWhiteNoise(bufferSize: Int): ShortArray {
         return ShortArray(bufferSize) {
             val sample = (Random.nextFloat() * 2f - 1f) * AMPLITUDE
             (sample * MAX_16BIT).toInt().toShort()
@@ -35,16 +112,15 @@ object NoiseGenerator {
     }
     
     /**
-     * Generate a buffer of brown (Brownian/red) noise samples
-     * Brown noise has more bass, sounds like a waterfall or wind
+     * Brown noise: Integrated white noise (random walk).
+     * Sounds like a waterfall or rumbling wind.
+     * Heavy on bass frequencies.
      */
-    fun generateBrownNoise(bufferSize: Int): ShortArray {
+    private fun generateBrownNoise(bufferSize: Int): ShortArray {
         return ShortArray(bufferSize) {
-            // Random walk with leaky integration
             val white = Random.nextDouble() * 2.0 - 1.0
             brownLastOutput = (brownLastOutput + (0.02 * white)) / 1.02
             
-            // Normalize and apply amplitude
             val sample = (brownLastOutput * 3.5 * AMPLITUDE)
                 .coerceIn(-1.0, 1.0)
             
@@ -53,19 +129,17 @@ object NoiseGenerator {
     }
     
     /**
-     * Generate a buffer of pink noise samples
-     * Pink noise (1/f) is balanced between white and brown
-     * Uses Voss-McCartney algorithm for efficient generation
+     * Pink noise: 1/f spectrum using Voss-McCartney algorithm.
+     * Balanced between white (hissy) and brown (rumbly).
+     * Often considered most natural and easy to listen to.
      */
-    fun generatePinkNoise(bufferSize: Int): ShortArray {
+    private fun generatePinkNoise(bufferSize: Int): ShortArray {
         return ShortArray(bufferSize) {
-            // Voss-McCartney algorithm
             val lastIndex = pinkIndex
             pinkIndex++
             
             if (pinkIndex >= 65536) pinkIndex = 0
             
-            // Find which rows need updating
             var diff = lastIndex xor pinkIndex
             var row = 0
             
@@ -80,7 +154,6 @@ object NoiseGenerator {
                 row++
             }
             
-            // Add white noise for high frequencies
             val white = (Random.nextInt() shr 16)
             val pinkSample = (pinkRunningSum + white) / 65536.0
             
@@ -89,27 +162,5 @@ object NoiseGenerator {
             
             (sample * MAX_16BIT).toInt().toShort()
         }
-    }
-    
-    /**
-     * Generate noise buffer for specified type
-     */
-    fun generate(type: NoiseType, bufferSize: Int): ShortArray {
-        return when (type) {
-            NoiseType.WHITE -> generateWhiteNoise(bufferSize)
-            NoiseType.BROWN -> generateBrownNoise(bufferSize)
-            NoiseType.PINK -> generatePinkNoise(bufferSize)
-            NoiseType.OFF -> ShortArray(bufferSize) { 0 }
-        }
-    }
-    
-    /**
-     * Reset internal state (call when changing noise type)
-     */
-    fun reset() {
-        pinkRows.fill(0)
-        pinkRunningSum = 0
-        pinkIndex = 0
-        brownLastOutput = 0.0
     }
 }

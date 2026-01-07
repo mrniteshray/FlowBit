@@ -85,8 +85,8 @@ fun BlockScreen(
             // Header
             item {
                 Text(
-                    text = "Block What Holds You Back",
-                    fontSize = 28.sp,
+                    text = "Blocks",
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp)

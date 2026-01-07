@@ -7,9 +7,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,23 +24,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import xcom.niteshray.xapps.xblockit.feature.focus.audio.NoiseType
+import xcom.niteshray.xapps.xblockit.feature.focus.audio.SoundCategory
 import xcom.niteshray.xapps.xblockit.ui.theme.*
 
 /**
- * Bottom sheet content for selecting focus noise type
+ * Bottom sheet content for selecting focus sound type.
+ * 
+ * Displays all 10 focus sounds organized by category:
+ * - Noise (White, Brown, Pink)
+ * - Brainwave (Alpha, Beta)
+ * - Nature (Rain, Ocean, Wind)
+ * - Ambient (Lo-Fi Drone, Deep Hum)
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoiseSelector(
     selectedNoise: NoiseType,
     onNoiseSelected: (NoiseType) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val scrollState = rememberScrollState()
+    val groupedSounds = remember { NoiseType.groupedByCategory() }
+    
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(24.dp)
             .padding(bottom = 32.dp)
+            .verticalScroll(scrollState)
     ) {
         // Header
         Text(
@@ -55,26 +68,56 @@ fun NoiseSelector(
             modifier = Modifier.padding(bottom = 24.dp)
         )
         
-        // Noise options
-        NoiseType.entries.forEach { noiseType ->
-            NoiseOption(
-                noiseType = noiseType,
-                isSelected = selectedNoise == noiseType,
-                onClick = {
-                    onNoiseSelected(noiseType)
-                    onDismiss()
-                }
+        // Grouped sound options
+        groupedSounds.forEach { (category, sounds) ->
+            // Category header
+            Text(
+                text = category.displayName,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary,
+                letterSpacing = 1.sp,
+                modifier = Modifier.padding(bottom = 8.dp, top = 8.dp)
             )
             
-            if (noiseType != NoiseType.entries.last()) {
-                Spacer(modifier = Modifier.height(12.dp))
+            // Sound options in this category
+            sounds.forEach { noiseType ->
+                SoundOption(
+                    noiseType = noiseType,
+                    isSelected = selectedNoise == noiseType,
+                    onClick = {
+                        onNoiseSelected(noiseType)
+                        onDismiss()
+                    }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
+            
+            Spacer(modifier = Modifier.height(8.dp))
         }
+        
+        // Off option at the bottom
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+        
+        SoundOption(
+            noiseType = NoiseType.OFF,
+            isSelected = selectedNoise == NoiseType.OFF,
+            onClick = {
+                onNoiseSelected(NoiseType.OFF)
+                onDismiss()
+            }
+        )
     }
 }
 
+/**
+ * Individual sound option row
+ */
 @Composable
-private fun NoiseOption(
+private fun SoundOption(
     noiseType: NoiseType,
     isSelected: Boolean,
     onClick: () -> Unit
@@ -97,41 +140,54 @@ private fun NoiseOption(
         label = "content_color"
     )
     
-    val description = when (noiseType) {
-        NoiseType.WHITE -> "Balanced, static-like sound"
-        NoiseType.BROWN -> "Deep, rumbling sound like wind"
-        NoiseType.PINK -> "Softer, balanced frequencies"
-        NoiseType.OFF -> "No background sound"
-    }
-    
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(backgroundColor)
             .border(
                 width = 1.dp,
                 color = if (isSelected) GlowWhiteMedium else BorderGlow,
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(12.dp)
             )
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) { onClick() }
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = noiseType.displayName,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = contentColor
+                )
+                
+                // Headphone indicator for binaural beats
+                if (noiseType.requiresStereo) {
+                    Icon(
+                        imageVector = Icons.Default.Headphones,
+                        contentDescription = "Headphones recommended",
+                        tint = if (isSelected) 
+                            contentColor.copy(alpha = 0.8f) 
+                        else 
+                            MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+            }
+            
             Text(
-                text = noiseType.displayName,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = contentColor
-            )
-            Text(
-                text = description,
-                fontSize = 13.sp,
-                color = contentColor.copy(alpha = 0.7f)
+                text = getSoundDescription(noiseType),
+                fontSize = 12.sp,
+                color = contentColor.copy(alpha = 0.7f),
+                lineHeight = 16.sp
             )
         }
         
@@ -140,8 +196,36 @@ private fun NoiseOption(
                 imageVector = Icons.Default.Check,
                 contentDescription = "Selected",
                 tint = contentColor,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(18.dp)
             )
         }
+    }
+}
+
+/**
+ * Get human-readable description for each sound type
+ */
+private fun getSoundDescription(noiseType: NoiseType): String {
+    return when (noiseType) {
+        // Noise
+        NoiseType.WHITE -> "Balanced, static-like sound"
+        NoiseType.BROWN -> "Deep, rumbling like wind"
+        NoiseType.PINK -> "Softer, natural balance"
+        
+        // Brainwave
+        NoiseType.BINAURAL_ALPHA -> "10 Hz • Relaxed focus & creativity"
+        NoiseType.BINAURAL_BETA -> "15 Hz • Active concentration"
+        
+        // Nature
+        NoiseType.SOFT_RAIN -> "Gentle rain with droplets"
+        NoiseType.OCEAN_WAVES -> "Rhythmic wave cycles"
+        NoiseType.WIND -> "Subtle gusting breeze"
+        
+        // Ambient
+        NoiseType.LO_FI_DRONE -> "Warm, sustained tones"
+        NoiseType.DEEP_HUM -> "Grounding bass frequencies"
+        
+        // Off
+        NoiseType.OFF -> "No background sound"
     }
 }
