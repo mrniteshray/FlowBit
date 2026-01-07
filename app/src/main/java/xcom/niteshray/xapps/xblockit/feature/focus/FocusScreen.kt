@@ -1,7 +1,12 @@
 package xcom.niteshray.xapps.xblockit.feature.focus
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,6 +31,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -64,7 +70,7 @@ fun FocusScreen() {
     
     // Noise state
     val noisePlayer = remember { FocusNoisePlayer() }
-    var currentNoise by remember { mutableStateOf(NoiseType.WHITE) }
+    var currentNoise by remember { mutableStateOf(NoiseType.BROWN) }
     var showNoiseSelector by remember { mutableStateOf(false) }
     
     // Cleanup on dispose
@@ -146,6 +152,19 @@ fun FocusScreen() {
             .background(MaterialTheme.colorScheme.background)
             .padding(24.dp)
     ) {
+        // Rotating animation for music icon when sound is playing
+        val isSoundPlaying = isRunning && !isPaused && currentNoise != NoiseType.OFF
+        val infiniteTransition = rememberInfiniteTransition(label = "music_rotation")
+        val rotation by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 4000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "rotation"
+        )
+        
         // Music icon (top right) - appears when timer is running
         AnimatedVisibility(
             visible = isRunning,
@@ -172,7 +191,9 @@ fun FocusScreen() {
                         MaterialTheme.colorScheme.primary 
                     else 
                         MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier
+                        .size(22.dp)
+                        .rotate(if (isSoundPlaying) rotation else 0f)
                 )
             }
         }

@@ -89,6 +89,11 @@ object NoiseGenerator {
         brownLastOutput = 0.0
         lastSample = 0.0
         
+        // White noise smoothing state
+        whiteSmooth1 = 0.0
+        whiteSmooth2 = 0.0
+        whiteSmooth3 = 0.0
+        
         // Delegated generators
         BinauralGenerator.reset()
         NatureGenerator.reset()
@@ -99,18 +104,36 @@ object NoiseGenerator {
     // Smoothed Noise Generators
     // ═══════════════════════════════════════════════════════════════
     
+    // Extra state for improved white noise
+    private var whiteSmooth1 = 0.0
+    private var whiteSmooth2 = 0.0
+    private var whiteSmooth3 = 0.0
+    
     /**
-     * Soft white noise with low-pass filtering.
-     * Much gentler than raw white noise.
+     * Premium soft white noise with multi-stage filtering.
+     * 
+     * Much gentler than raw white noise - sounds like soft,
+     * distant static or gentle air flow. Three-stage smoothing
+     * removes harshness while retaining pleasant texture.
      */
     private fun generateWhiteNoise(bufferSize: Int): ShortArray {
         return ShortArray(bufferSize) {
             val raw = Random.nextDouble() * 2.0 - 1.0
             
-            // Apply smoothing (simple one-pole low-pass filter)
-            lastSample = lastSample * SMOOTHING_FACTOR + raw * (1.0 - SMOOTHING_FACTOR)
+            // Stage 1: Initial heavy smoothing (removes sharp transients)
+            whiteSmooth1 = whiteSmooth1 * 0.85 + raw * 0.15
             
-            val sample = lastSample * AMPLITUDE
+            // Stage 2: Medium smoothing (shapes frequency curve)
+            whiteSmooth2 = whiteSmooth2 * 0.75 + whiteSmooth1 * 0.25
+            
+            // Stage 3: Final polish (extra softness)
+            whiteSmooth3 = whiteSmooth3 * 0.6 + whiteSmooth2 * 0.4
+            
+            // Store for legacy smoothing reference
+            lastSample = whiteSmooth3
+            
+            // Slightly boost to compensate for filtering loss, but keep soft
+            val sample = whiteSmooth3 * AMPLITUDE * 1.3
             (sample * MAX_16BIT).toInt().coerceIn(-32768, 32767).toShort()
         }
     }
