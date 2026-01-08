@@ -39,8 +39,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
-import xcom.niteshray.xapps.xblockit.feature.focus.audio.FocusNoisePlayer
+import android.content.Intent
+import android.os.Build
+import android.content.Context
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Widgets
+import xcom.niteshray.xapps.xblockit.feature.focus.service.FocusManager
 import xcom.niteshray.xapps.xblockit.feature.focus.audio.NoiseType
 import xcom.niteshray.xapps.xblockit.feature.focus.components.NoiseSelector
 import xcom.niteshray.xapps.xblockit.ui.theme.*
@@ -60,62 +64,32 @@ private const val BREAK_MINUTES = 5
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FocusScreen() {
-    // Timer state
-    var isRunning by remember { mutableStateOf(false) }
-    var isPaused by remember { mutableStateOf(false) }
-    var isBreakTime by remember { mutableStateOf(false) }
-    var timeRemaining by remember { mutableIntStateOf(WORK_MINUTES * 60) }
-    var totalTime by remember { mutableIntStateOf(WORK_MINUTES * 60) }
-    var completedSessions by remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
+    val focusState by FocusManager.state.collectAsState()
     
-    // Noise state
-    val noisePlayer = remember { FocusNoisePlayer() }
-    var currentNoise by remember { mutableStateOf(NoiseType.BROWN) }
+    // Timer state from FocusManager
+    val isRunning = focusState.isRunning
+    val isPaused = focusState.isPaused
+    val isBreakTime = focusState.isBreakTime
+    val timeRemaining = focusState.timeRemaining
+    val totalTime = focusState.totalTime
+    val completedSessions = focusState.completedSessions
+    val currentNoise = focusState.currentNoise
+    
     var showNoiseSelector by remember { mutableStateOf(false) }
     
-    // Cleanup on dispose
-    DisposableEffect(Unit) {
-        onDispose {
-            noisePlayer.release()
-        }
-    }
-    
-    // Timer countdown logic
-    LaunchedEffect(isRunning, isPaused) {
-        while (isRunning && !isPaused && timeRemaining > 0) {
-            delay(1000L)
-            timeRemaining--
-        }
-        
-        // Handle session completion
-        if (timeRemaining == 0 && isRunning) {
-            if (!isBreakTime) {
-                // Work session completed -> Start break
-                completedSessions++
-                isBreakTime = true
-                timeRemaining = BREAK_MINUTES * 60
-                totalTime = BREAK_MINUTES * 60
-                // Stop noise during break
-                noisePlayer.stop()
-            } else {
-                // Break completed -> Ready for next work session
-                isBreakTime = false
-                timeRemaining = WORK_MINUTES * 60
-                totalTime = WORK_MINUTES * 60
-                // Resume noise for work session
-                if (currentNoise != NoiseType.OFF) {
-                    noisePlayer.play(currentNoise)
-                }
+    // Commands to Service
+    fun startServiceAction(action: String, noiseType: NoiseType? = null) {
+        val intent = Intent(context, xcom.niteshray.xapps.xblockit.feature.focus.service.FocusService::class.java).apply {
+            this.action = action
+            if (noiseType != null) {
+                putExtra(xcom.niteshray.xapps.xblockit.feature.focus.service.FocusService.EXTRA_NOISE_TYPE, noiseType.name)
             }
         }
-    }
-    
-    // Start/stop noise with timer
-    LaunchedEffect(isRunning, isPaused, isBreakTime) {
-        if (isRunning && !isPaused && !isBreakTime && currentNoise != NoiseType.OFF) {
-            noisePlayer.play(currentNoise)
-        } else if (!isRunning || isPaused || isBreakTime) {
-            noisePlayer.stop()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
         }
     }
 
@@ -135,10 +109,7 @@ fun FocusScreen() {
             NoiseSelector(
                 selectedNoise = currentNoise,
                 onNoiseSelected = { noise ->
-                    currentNoise = noise
-                    if (isRunning && !isPaused && !isBreakTime) {
-                        noisePlayer.setNoiseType(noise)
-                    }
+                    startServiceAction(xcom.niteshray.xapps.xblockit.feature.focus.service.FocusService.ACTION_SET_NOISE, noise)
                 },
                 onDismiss = { showNoiseSelector = false }
             )
@@ -203,6 +174,14 @@ fun FocusScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            // Widget Tip for new users
+            WidgetTip(
+                 onDismiss = { /* Handle permanent dismissal in local storage if needed */ },
+                 modifier = Modifier
+                     .fillMaxWidth()
+                     .padding(bottom = 32.dp)
+            )
+
             // Session indicator dots
             SessionDots(
                 completed = completedSessions,
@@ -227,19 +206,15 @@ fun FocusScreen() {
                 isPaused = isPaused,
                 onPlayPause = {
                     if (!isRunning) {
-                        isRunning = true
-                        isPaused = false
+                        startServiceAction(xcom.niteshray.xapps.xblockit.feature.focus.service.FocusService.ACTION_START)
+                    } else if (isPaused) {
+                        startServiceAction(xcom.niteshray.xapps.xblockit.feature.focus.service.FocusService.ACTION_RESUME)
                     } else {
-                        isPaused = !isPaused
+                        startServiceAction(xcom.niteshray.xapps.xblockit.feature.focus.service.FocusService.ACTION_PAUSE)
                     }
                 },
                 onReset = {
-                    isRunning = false
-                    isPaused = false
-                    isBreakTime = false
-                    timeRemaining = WORK_MINUTES * 60
-                    totalTime = WORK_MINUTES * 60
-                    noisePlayer.stop()
+                    startServiceAction(xcom.niteshray.xapps.xblockit.feature.focus.service.FocusService.ACTION_RESET)
                 }
             )
         }
@@ -426,4 +401,93 @@ private fun formatTime(seconds: Int): String {
     val mins = seconds / 60
     val secs = seconds % 60
     return String.format("%02d:%02d", mins, secs)
+}
+
+/**
+ * Widget Tip Card to help users add the widget
+ * Shows only once per user.
+ */
+@Composable
+private fun WidgetTip(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("blockit_prefs", Context.MODE_PRIVATE) }
+    var isVisible by remember { 
+        mutableStateOf(!prefs.getBoolean("widget_tip_shown", false)) 
+    }
+    
+    if (isVisible) {
+        Box(
+            modifier = modifier
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f), MaterialTheme.shapes.medium)
+                .padding(16.dp)
+        ) {
+             // Close button
+             IconButton(
+                 onClick = { 
+                     isVisible = false 
+                     prefs.edit().putBoolean("widget_tip_shown", true).apply()
+                     onDismiss()
+                 },
+                 modifier = Modifier
+                     .align(Alignment.TopEnd)
+                     .size(24.dp)
+             ) {
+                 Icon(
+                     imageVector = Icons.Default.Close,
+                     contentDescription = "Dismiss",
+                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                     modifier = Modifier.size(16.dp)
+                 )
+             }
+             
+             Column {
+                 Row(verticalAlignment = Alignment.CenterVertically) {
+                     Icon(
+                         imageVector = Icons.Default.Widgets,
+                         contentDescription = null,
+                         tint = MaterialTheme.colorScheme.primary,
+                         modifier = Modifier.size(20.dp)
+                     )
+                     Spacer(modifier = Modifier.width(8.dp))
+                     Text(
+                         text = "New Focus Widget",
+                         style = MaterialTheme.typography.titleSmall,
+                         color = MaterialTheme.colorScheme.onSurface
+                     )
+                 }
+                 
+                 Spacer(modifier = Modifier.height(8.dp))
+                 
+                 Text(
+                     text = "Access your timer from the home screen!\n\nTo add: Long press on your Home Screen → Widgets → FlowBit.",
+                     style = MaterialTheme.typography.bodySmall,
+                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                 )
+                 
+                 Spacer(modifier = Modifier.height(12.dp))
+                 
+                 // "Got it" button
+                 Button(
+                     onClick = {
+                         isVisible = false
+                         prefs.edit().putBoolean("widget_tip_shown", true).apply()
+                         onDismiss()
+                     },
+                     colors = ButtonDefaults.buttonColors(
+                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                     ),
+                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                     modifier = Modifier.height(36.dp)
+                 ) {
+                     Text("Got it", fontSize = 13.sp)
+                 }
+             }
+        }
+    }
 }

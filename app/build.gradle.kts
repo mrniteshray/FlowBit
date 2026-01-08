@@ -13,8 +13,8 @@ android {
         applicationId = "xcom.niteshray.xapps.xblockit"
         minSdk = 24
         targetSdk = 35
-        versionCode = 20
-        versionName = "1.5"
+        versionCode = 21
+        versionName = "1.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -79,6 +79,10 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.6.1")
     implementation("androidx.media3:media3-ui-compose:1.6.1")
 
-    implementation("com.airbnb.android:lottie-compose:6.3.0")
+    implementation("com.android.billingclient:billing:8.3.0")
+
+    implementation("androidx.glance:glance-appwidget:1.1.1")
+// For interop APIs with Material 3
+    implementation("androidx.glance:glance-material3:1.1.1")
 
 }
