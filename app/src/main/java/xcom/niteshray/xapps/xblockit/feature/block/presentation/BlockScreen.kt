@@ -81,6 +81,18 @@ fun BlockScreen(
 
     // Block state
     var isBlock by remember { mutableStateOf(blockSharedPref.getBlock()) }
+    
+    // Break time state
+    var showBreakTimeDialog by remember { mutableStateOf(false) }
+    var breakTimeRemaining by remember { mutableStateOf(blockSharedPref.getPauseEndTime()) }
+    
+    // Update break time remaining every second
+    LaunchedEffect(Unit) {
+        while (true) {
+            breakTimeRemaining = blockSharedPref.getPauseEndTime()
+            kotlinx.coroutines.delay(1000L)
+        }
+    }
 
     val apps = appViewModel.app
     val weblist = webViewModel.web
@@ -233,6 +245,72 @@ fun BlockScreen(
                         }
                     }
                 )
+            }
+
+            // Take a Break Section
+            item {
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                if (breakTimeRemaining > 0) {
+                    // Show break remaining time
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.tertiaryContainer)
+                            .padding(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text(
+                                    text = "☕ Break Active",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                                )
+                                Text(
+                                    text = "${(breakTimeRemaining / 60000)}m ${(breakTimeRemaining % 60000) / 1000}s remaining",
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+                                )
+                            }
+                            
+                            TextButton(
+                                onClick = {
+                                    // End break early
+                                    val intent = Intent(context, PauseTimeService::class.java)
+                                    context.stopService(intent)
+                                    blockSharedPref.setPauseEndTime(0L)
+                                    blockSharedPref.setBlock(true)
+                                    isBlock = true
+                                    breakTimeRemaining = 0L
+                                    Toast.makeText(context, "Break ended", Toast.LENGTH_SHORT).show()
+                                }
+                            ) {
+                                Text("End Break", color = MaterialTheme.colorScheme.onTertiaryContainer)
+                            }
+                        }
+                    }
+                } else if (isBlock) {
+                    // Show Take a Break button
+                    OutlinedButton(
+                        onClick = { showBreakTimeDialog = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text("☕ Take a Break", fontWeight = FontWeight.Medium)
+                    }
+                }
             }
 
             // Block Websites Section
@@ -507,6 +585,29 @@ fun BlockScreen(
         )
     }
 
+    // Break Time Selection Dialog
+    if (showBreakTimeDialog) {
+        BreakTimeDialog(
+            onDismiss = { showBreakTimeDialog = false },
+            onTimeSelected = { minutes ->
+                showBreakTimeDialog = false
+                val milliseconds = minutes * 60 * 1000L
+                
+                // Disable blocking during break
+                blockSharedPref.setBlock(false)
+                isBlock = false
+                
+                // Start the pause timer service
+                val intent = Intent(context, PauseTimeService::class.java).apply {
+                    putExtra("pause_time", milliseconds)
+                }
+                context.startService(intent)
+                
+                breakTimeRemaining = milliseconds
+                Toast.makeText(context, "Enjoy your $minutes minute break! ☕", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
 
 }
 
@@ -933,6 +1034,79 @@ fun AppItemInBottomSheet(app: Appitem, onAddClick: () -> Unit) {
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
             )
+        }
+    }
+}
+
+/**
+ * Dialog to select break time duration (1-15 minutes)
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BreakTimeDialog(
+    onDismiss: () -> Unit,
+    onTimeSelected: (Int) -> Unit
+) {
+    val breakOptions = listOf(1, 2, 3, 5, 10, 15)
+    
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+        ) {
+            Text(
+                text = "☕ Take a Break",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = "Pause blocking for a while. Blocking will resume automatically when time ends.",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            // Time options grid
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(breakOptions) { minutes ->
+                    OutlinedButton(
+                        onClick = { onTimeSelected(minutes) },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.height(48.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(
+                            text = "$minutes min",
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            // Cancel button
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text("Cancel")
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
