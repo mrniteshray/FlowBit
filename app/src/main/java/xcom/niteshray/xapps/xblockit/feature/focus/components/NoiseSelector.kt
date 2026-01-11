@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Headphones
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +40,7 @@ import xcom.niteshray.xapps.xblockit.ui.theme.*
 @Composable
 fun NoiseSelector(
     selectedNoise: NoiseType,
+    isUserPremium: Boolean,
     onNoiseSelected: (NoiseType) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -85,9 +87,13 @@ fun NoiseSelector(
                 SoundOption(
                     noiseType = noiseType,
                     isSelected = selectedNoise == noiseType,
+                    isLocked = noiseType.isPremium && !isUserPremium,
                     onClick = {
                         onNoiseSelected(noiseType)
-                        onDismiss()
+                        // Dismiss only if allowed (not handled here, parent decides if we dismiss or show paywall)
+                        if (!noiseType.isPremium || isUserPremium) {
+                            onDismiss()
+                        }
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -105,6 +111,7 @@ fun NoiseSelector(
         SoundOption(
             noiseType = NoiseType.OFF,
             isSelected = selectedNoise == NoiseType.OFF,
+            isLocked = false,
             onClick = {
                 onNoiseSelected(NoiseType.OFF)
                 onDismiss()
@@ -120,6 +127,7 @@ fun NoiseSelector(
 private fun SoundOption(
     noiseType: NoiseType,
     isSelected: Boolean,
+    isLocked: Boolean,
     onClick: () -> Unit
 ) {
     val backgroundColor by animateColorAsState(
@@ -191,13 +199,24 @@ private fun SoundOption(
             )
         }
         
-        if (isSelected) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = "Selected",
-                tint = contentColor,
-                modifier = Modifier.size(18.dp)
-            )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+             if (isLocked) {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = "Premium",
+                    tint = MaterialTheme.colorScheme.tertiary, // Gold-ish usually, or just tertiary
+                    modifier = Modifier.size(18.dp).padding(end = 8.dp)
+                )
+            }
+            
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Selected",
+                    tint = contentColor,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
         }
     }
 }

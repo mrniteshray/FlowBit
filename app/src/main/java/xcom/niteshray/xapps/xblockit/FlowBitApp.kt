@@ -10,14 +10,6 @@ class FlowBitApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        Purchases.logLevel = LogLevel.DEBUG
-        Purchases.configure(
-            PurchasesConfiguration.Builder(
-                this,
-                "goog_faDOMUVRRjxNopHHRNdgDLViolc"
-            ).build()
-
-        )
-
+        xcom.niteshray.xapps.xblockit.data.billing.BillingRepository.init(this)
     }
 }

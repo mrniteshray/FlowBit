@@ -44,6 +44,14 @@ import android.os.Build
 import android.content.Context
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Widgets
+import android.widget.Toast
+import com.revenuecat.purchases.CustomerInfo
+import com.revenuecat.purchases.PurchasesError
+import com.revenuecat.purchases.models.StoreTransaction
+import com.revenuecat.purchases.ui.revenuecatui.PaywallDialog
+import com.revenuecat.purchases.ui.revenuecatui.PaywallDialogOptions
+import com.revenuecat.purchases.ui.revenuecatui.PaywallListener
+import xcom.niteshray.xapps.xblockit.data.billing.BillingRepository
 import xcom.niteshray.xapps.xblockit.feature.focus.service.FocusManager
 import xcom.niteshray.xapps.xblockit.feature.focus.audio.NoiseType
 import xcom.niteshray.xapps.xblockit.feature.focus.components.NoiseSelector
@@ -66,6 +74,10 @@ private const val BREAK_MINUTES = 5
 fun FocusScreen() {
     val context = LocalContext.current
     val focusState by FocusManager.state.collectAsState()
+    val isPremium by BillingRepository.isPremium.collectAsState()
+    
+    // Paywall Dialog State
+    var showPaywall by remember { mutableStateOf(false) }
     
     // Timer state from FocusManager
     val isRunning = focusState.isRunning
@@ -101,6 +113,12 @@ fun FocusScreen() {
     )
 
     // Noise selector bottom sheet
+
+    
+    // IMPORTANT: Fix for onDismiss above. The NoiseSelector doesn't dismiss itself, 
+    // the bottom sheet does. But if we selected a premium sound, we want to keep the bottom sheet?
+    // Actually, usually we close the sheet and show paywall.
+    // Let's refine the NoiseSelector call.
     if (showNoiseSelector) {
         ModalBottomSheet(
             onDismissRequest = { showNoiseSelector = false },
@@ -108,12 +126,51 @@ fun FocusScreen() {
         ) {
             NoiseSelector(
                 selectedNoise = currentNoise,
+                isUserPremium = isPremium,
                 onNoiseSelected = { noise ->
-                    startServiceAction(xcom.niteshray.xapps.xblockit.feature.focus.service.FocusService.ACTION_SET_NOISE, noise)
+                     if (noise.isPremium && !isPremium) {
+                        showPaywall = true
+                        showNoiseSelector = false // Close selector to show paywall
+                    } else {
+                        startServiceAction(xcom.niteshray.xapps.xblockit.feature.focus.service.FocusService.ACTION_SET_NOISE, noise)
+                    }
                 },
-                onDismiss = { showNoiseSelector = false }
+                onDismiss = { showNoiseSelector = false } // Explicit dismiss request
             )
         }
+    }
+
+    if (showPaywall) {
+        PaywallDialog(
+            paywallDialogOptions = PaywallDialogOptions.Builder()
+                .setDismissRequest { showPaywall = false }
+                .setListener(
+                    object : PaywallListener {
+                        override fun onPurchaseStarted(rcPackage: com.revenuecat.purchases.Package) {}
+                        
+                        override fun onPurchaseCompleted(customerInfo: CustomerInfo, storeTransaction: StoreTransaction) {
+                            showPaywall = false
+                            BillingRepository.updatePremiumState(customerInfo) // Force update
+                            Toast.makeText(context, "Purchase Successful! Enjoy Premium.", Toast.LENGTH_SHORT).show()
+                        }
+                        
+                        override fun onPurchaseError(error: PurchasesError) {
+                            Toast.makeText(context, "Purchase Failed: ${error.message}", Toast.LENGTH_SHORT).show()
+                        }
+                        
+                        override fun onRestoreCompleted(customerInfo: CustomerInfo) {
+                            showPaywall = false
+                             BillingRepository.updatePremiumState(customerInfo) // Force update
+                             Toast.makeText(context, "Purchases Restored!", Toast.LENGTH_SHORT).show()
+                        }
+                        
+                        override fun onRestoreError(error: PurchasesError) {
+                            Toast.makeText(context, "Restore Failed: ${error.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                )
+                .build()
+        )
     }
 
     // Main Layout

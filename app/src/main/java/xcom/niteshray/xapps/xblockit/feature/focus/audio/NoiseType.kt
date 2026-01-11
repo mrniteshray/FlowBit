@@ -12,28 +12,29 @@ package xcom.niteshray.xapps.xblockit.feature.focus.audio
 enum class NoiseType(
     val displayName: String,
     val category: SoundCategory,
-    val requiresStereo: Boolean = false
+    val requiresStereo: Boolean = false,
+    val isPremium: Boolean = false
 ) {
-    // === Noise Category ===
-    WHITE("White Noise", SoundCategory.NOISE),
-    BROWN("Brown Noise", SoundCategory.NOISE),
-    PINK("Pink Noise", SoundCategory.NOISE),
+    // === Noise Category === (FREE)
+    WHITE("White Noise", SoundCategory.NOISE, isPremium = false),
+    BROWN("Brown Noise", SoundCategory.NOISE, isPremium = false),
+    PINK("Pink Noise", SoundCategory.NOISE, isPremium = false),
     
-    // === Brainwave Category ===
-    BINAURAL_ALPHA("Alpha Waves", SoundCategory.BRAINWAVE, requiresStereo = true),
-    BINAURAL_BETA("Beta Waves", SoundCategory.BRAINWAVE, requiresStereo = true),
+    // === Brainwave Category === (PREMIUM)
+    BINAURAL_ALPHA("Alpha Waves", SoundCategory.BRAINWAVE, requiresStereo = true, isPremium = true),
+    BINAURAL_BETA("Beta Waves", SoundCategory.BRAINWAVE, requiresStereo = true, isPremium = true),
     
-    // === Nature Category ===
-    SOFT_RAIN("Soft Rain", SoundCategory.NATURE),
-    OCEAN_WAVES("Ocean Waves", SoundCategory.NATURE),
-    WIND("Wind", SoundCategory.NATURE),
+    // === Nature Category === (PREMIUM)
+    SOFT_RAIN("Soft Rain", SoundCategory.NATURE, isPremium = true),
+    OCEAN_WAVES("Ocean Waves", SoundCategory.NATURE, isPremium = true),
+    WIND("Wind", SoundCategory.NATURE, isPremium = true),
     
-    // === Ambient Category ===
-    LO_FI_DRONE("Lo-Fi Drone", SoundCategory.AMBIENT),
-    DEEP_HUM("Deep Hum", SoundCategory.AMBIENT),
+    // === Ambient Category === (PREMIUM)
+    LO_FI_DRONE("Lo-Fi Drone", SoundCategory.AMBIENT, isPremium = true),
+    DEEP_HUM("Deep Hum", SoundCategory.AMBIENT, isPremium = true),
     
     // === Off ===
-    OFF("Off", SoundCategory.OFF);
+    OFF("Off", SoundCategory.OFF, isPremium = false);
     
     companion object {
         /**
