@@ -1,5 +1,11 @@
 package xcom.niteshray.xapps.xblockit.feature.MainScreen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import xcom.niteshray.xapps.xblockit.component.FloatingBottomNav
 import xcom.niteshray.xapps.xblockit.feature.block.presentation.BlockScreen
 import xcom.niteshray.xapps.xblockit.feature.focus.FocusScreen
+import xcom.niteshray.xapps.xblockit.feature.focus.service.FocusManager
 import xcom.niteshray.xapps.xblockit.model.Screen
 
 /**
@@ -31,6 +39,10 @@ fun MainScreen(navController: NavController) {
     
     val navBackStackEntry by innerNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    // Observe Focus State
+    val focusState by FocusManager.state.collectAsState()
+    val isTimerRunning = focusState.isRunning
 
     Box(
         modifier = Modifier
@@ -52,21 +64,33 @@ fun MainScreen(navController: NavController) {
         }
         
         // Floating Bottom Navigation
-        FloatingBottomNav(
-            screens = screens,
-            currentRoute = currentRoute,
-            onNavigate = { screen ->
-                if (currentRoute != screen.route) {
-                    innerNavController.navigate(screen.route) {
-                        popUpTo(innerNavController.graph.startDestinationId) {
-                            saveState = true
+        AnimatedVisibility(
+            visible = !isTimerRunning,
+            enter = slideInVertically(
+                initialOffsetY = { it }, // Slide up from bottom
+                animationSpec = tween( durationMillis = 300)
+            ) + fadeIn(animationSpec = tween(durationMillis = 300)),
+            exit = slideOutVertically(
+                targetOffsetY = { it }, // Slide down to bottom
+                animationSpec = tween( durationMillis = 300)
+            ) + fadeOut(animationSpec = tween(durationMillis = 300)),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            FloatingBottomNav(
+                screens = screens,
+                currentRoute = currentRoute,
+                onNavigate = { screen ->
+                    if (currentRoute != screen.route) {
+                        innerNavController.navigate(screen.route) {
+                            popUpTo(innerNavController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
                     }
                 }
-            },
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
+            )
+        }
     }
 }
