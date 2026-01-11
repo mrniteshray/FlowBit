@@ -50,11 +50,12 @@ import xcom.niteshray.xapps.xblockit.util.CheckPermissions.isAccessibilityServic
 import xcom.niteshray.xapps.xblockit.util.CheckPermissions.isIgnoringBatteryOptimizations
 import xcom.niteshray.xapps.xblockit.util.CheckPermissions.isNotificationPermissionGranted
 import xcom.niteshray.xapps.xblockit.util.PauseTimeService
-import xcom.niteshray.xapps.xblockit.rememberPaywallLauncher
+import xcom.niteshray.xapps.xblockit.feature.paywall.PaywallDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BlockScreen(
+    onNavigateToPaywall: () -> Unit,
     appViewModel: AppViewModel = viewModel(),
     webViewModel: WebViewModel = viewModel()
 ) {
@@ -62,19 +63,13 @@ fun BlockScreen(
     val blockSharedPref = BlockSharedPref(context)
 
     // Navigation state
-    var showPremiumScreen by remember { mutableStateOf(false) }
 
-    // Create launcher ALWAYS (before conditional rendering)
-    val paywallLauncher = rememberPaywallLauncher {
-        showPremiumScreen = false
-        Toast.makeText(context, "Premium unlocked! 🎉", Toast.LENGTH_SHORT).show()
-    }
 
     // Permission states
     var showAccessibilityPermissionSheet by remember { mutableStateOf(false) }
     var showBatteryPermissionSheet by remember { mutableStateOf(false) }
     var showNotificationPermissionSheet by remember { mutableStateOf(false) }
-    
+
     // Bottom sheet states
     var showAddAppsBottomSheet by remember { mutableStateOf(false) }
     var showAddWebsiteBottomSheet by remember { mutableStateOf(false) }
@@ -108,10 +103,10 @@ fun BlockScreen(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
-                    
+
                     Button(
                         onClick = {
-                            paywallLauncher.launch()
+                            onNavigateToPaywall()
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary
@@ -167,7 +162,7 @@ fun BlockScreen(
 
             // Apps List or Empty State
             val blockedApps = apps.filter { it.isBlock }
-            
+
             if (apps.isEmpty()) {
                 item {
                     Box(
@@ -298,7 +293,7 @@ fun BlockScreen(
             // Privacy Policy Link
             item {
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -482,7 +477,7 @@ fun BlockScreen(
             onDeny = { showNotificationPermissionSheet = false }
         )
     }
-    
+
     // Add Apps Bottom Sheet
     if (showAddAppsBottomSheet) {
         AddAppsBottomSheet(
@@ -494,7 +489,7 @@ fun BlockScreen(
             }
         )
     }
-    
+
     // Add Website Bottom Sheet
     if (showAddWebsiteBottomSheet) {
         AddWebsiteBottomSheet(
@@ -505,6 +500,8 @@ fun BlockScreen(
             }
         )
     }
+
+
 }
 
 /**

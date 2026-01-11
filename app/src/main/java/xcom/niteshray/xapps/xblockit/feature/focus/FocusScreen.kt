@@ -42,15 +42,13 @@ import androidx.compose.ui.unit.sp
 import android.content.Intent
 import android.os.Build
 import android.content.Context
+import android.util.Log
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Widgets
-import android.widget.Toast
-import com.revenuecat.purchases.CustomerInfo
-import com.revenuecat.purchases.PurchasesError
-import com.revenuecat.purchases.models.StoreTransaction
-import com.revenuecat.purchases.ui.revenuecatui.PaywallDialog
-import com.revenuecat.purchases.ui.revenuecatui.PaywallDialogOptions
-import com.revenuecat.purchases.ui.revenuecatui.PaywallListener
+import com.revenuecat.purchases.Purchases
+import com.revenuecat.purchases.getOfferingsWith
+import com.revenuecat.purchases.Offering
+import xcom.niteshray.xapps.xblockit.feature.paywall.PaywallDialog
 import xcom.niteshray.xapps.xblockit.data.billing.BillingRepository
 import xcom.niteshray.xapps.xblockit.feature.focus.service.FocusManager
 import xcom.niteshray.xapps.xblockit.feature.focus.audio.NoiseType
@@ -71,13 +69,17 @@ private const val BREAK_MINUTES = 5
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FocusScreen() {
+fun FocusScreen(onNavigateToPaywall: () -> Unit) {
     val context = LocalContext.current
     val focusState by FocusManager.state.collectAsState()
+    
+
+    
+    
     val isPremium by BillingRepository.isPremium.collectAsState()
     
     // Paywall Dialog State
-    var showPaywall by remember { mutableStateOf(false) }
+
     
     // Timer state from FocusManager
     val isRunning = focusState.isRunning
@@ -129,8 +131,8 @@ fun FocusScreen() {
                 isUserPremium = isPremium,
                 onNoiseSelected = { noise ->
                      if (noise.isPremium && !isPremium) {
-                        showPaywall = true
-                        showNoiseSelector = false // Close selector to show paywall
+                        showNoiseSelector = false 
+                        onNavigateToPaywall()
                     } else {
                         startServiceAction(xcom.niteshray.xapps.xblockit.feature.focus.service.FocusService.ACTION_SET_NOISE, noise)
                     }
@@ -140,38 +142,7 @@ fun FocusScreen() {
         }
     }
 
-    if (showPaywall) {
-        PaywallDialog(
-            paywallDialogOptions = PaywallDialogOptions.Builder()
-                .setDismissRequest { showPaywall = false }
-                .setListener(
-                    object : PaywallListener {
-                        override fun onPurchaseStarted(rcPackage: com.revenuecat.purchases.Package) {}
-                        
-                        override fun onPurchaseCompleted(customerInfo: CustomerInfo, storeTransaction: StoreTransaction) {
-                            showPaywall = false
-                            BillingRepository.updatePremiumState(customerInfo) // Force update
-                            Toast.makeText(context, "Purchase Successful! Enjoy Premium.", Toast.LENGTH_SHORT).show()
-                        }
-                        
-                        override fun onPurchaseError(error: PurchasesError) {
-                            Toast.makeText(context, "Purchase Failed: ${error.message}", Toast.LENGTH_SHORT).show()
-                        }
-                        
-                        override fun onRestoreCompleted(customerInfo: CustomerInfo) {
-                            showPaywall = false
-                             BillingRepository.updatePremiumState(customerInfo) // Force update
-                             Toast.makeText(context, "Purchases Restored!", Toast.LENGTH_SHORT).show()
-                        }
-                        
-                        override fun onRestoreError(error: PurchasesError) {
-                            Toast.makeText(context, "Restore Failed: ${error.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                )
-                .build()
-        )
-    }
+
 
     // Main Layout
     Box(

@@ -56,10 +56,10 @@ fun MainScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize()
         ) {
             composable("focus") {
-                FocusScreen()
+                FocusScreen(onNavigateToPaywall = { navController.navigate("paywall") })
             }
             composable("block") {
-                BlockScreen()
+                BlockScreen(onNavigateToPaywall = { navController.navigate("paywall") })
             }
         }
         
