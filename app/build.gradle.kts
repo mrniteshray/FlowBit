@@ -85,4 +85,9 @@ dependencies {
 // For interop APIs with Material 3
     implementation("androidx.glance:glance-material3:1.1.1")
 
+    implementation("com.revenuecat.purchases:purchases:9.19.0")
+
+    // RevenueCat Paywall UI for Compose
+    implementation("com.revenuecat.purchases:purchases-ui:9.19.0")
+
 }

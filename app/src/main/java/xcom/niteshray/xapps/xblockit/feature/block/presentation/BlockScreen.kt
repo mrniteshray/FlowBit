@@ -50,6 +50,7 @@ import xcom.niteshray.xapps.xblockit.util.CheckPermissions.isAccessibilityServic
 import xcom.niteshray.xapps.xblockit.util.CheckPermissions.isIgnoringBatteryOptimizations
 import xcom.niteshray.xapps.xblockit.util.CheckPermissions.isNotificationPermissionGranted
 import xcom.niteshray.xapps.xblockit.util.PauseTimeService
+import xcom.niteshray.xapps.xblockit.rememberPaywallLauncher
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +60,15 @@ fun BlockScreen(
 ) {
     val context = LocalContext.current
     val blockSharedPref = BlockSharedPref(context)
+
+    // Navigation state
+    var showPremiumScreen by remember { mutableStateOf(false) }
+
+    // Create launcher ALWAYS (before conditional rendering)
+    val paywallLauncher = rememberPaywallLauncher {
+        showPremiumScreen = false
+        Toast.makeText(context, "Premium unlocked! 🎉", Toast.LENGTH_SHORT).show()
+    }
 
     // Permission states
     var showAccessibilityPermissionSheet by remember { mutableStateOf(false) }
@@ -83,15 +93,39 @@ fun BlockScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Header
+            // Header with Pro Button
             item {
-                Text(
-                    text = "Blocks",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp)
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 20.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Blocks",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    
+                    Button(
+                        onClick = {
+                            paywallLauncher.launch()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = "⭐ PRO",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
             }
 
             // Block Apps Section
