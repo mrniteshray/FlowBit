@@ -32,7 +32,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateBlock(packageName: String, isBlocked: Boolean) {
-        _apps.find { it.packageName == packageName }?.isBlock = isBlocked
+        val index = _apps.indexOfFirst { it.packageName == packageName }
+        if (index != -1) {
+            _apps[index] = _apps[index].copy(isBlock = isBlocked)
+        }
+        
         if (isBlocked){
             BlockAppsUtil.addBlockApp(context = context,packageName)
         }else{

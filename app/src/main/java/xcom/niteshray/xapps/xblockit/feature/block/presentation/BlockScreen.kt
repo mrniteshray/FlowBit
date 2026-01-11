@@ -36,7 +36,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
+import xcom.niteshray.xapps.sliqswipe.subscription.ProButtonNew
 import xcom.niteshray.xapps.xblockit.R
+import xcom.niteshray.xapps.xblockit.data.billing.BillingRepository
+import xcom.niteshray.xapps.xblockit.data.billing.BillingRepository.isPremium
 import xcom.niteshray.xapps.xblockit.model.Appitem
 import xcom.niteshray.xapps.xblockit.feature.block.viewmodels.AppViewModel
 import xcom.niteshray.xapps.xblockit.feature.block.components.AccessibilityPermissionBottomSheet
@@ -73,6 +76,8 @@ fun BlockScreen(
     // Bottom sheet states
     var showAddAppsBottomSheet by remember { mutableStateOf(false) }
     var showAddWebsiteBottomSheet by remember { mutableStateOf(false) }
+    val isPremium by BillingRepository.isPremium.collectAsState()
+
 
     // Block state
     var isBlock by remember { mutableStateOf(blockSharedPref.getBlock()) }
@@ -104,21 +109,10 @@ fun BlockScreen(
                         color = MaterialTheme.colorScheme.onBackground
                     )
 
-                    Button(
-                        onClick = {
+                    if (!isPremium) {
+                        ProButtonNew(){
                             onNavigateToPaywall()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = "⭐ PRO",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
+                        }
                     }
                 }
             }
@@ -140,7 +134,13 @@ fun BlockScreen(
                     )
 
                     TextButton(
-                        onClick = { showAddAppsBottomSheet = true },
+                        onClick = { 
+                            if (isAccessibilityServiceEnabled(context, BlockAccessibility::class.java)) {
+                                showAddAppsBottomSheet = true 
+                            } else {
+                                showAccessibilityPermissionSheet = true
+                            }
+                        },
                         colors = ButtonDefaults.textButtonColors(
                             contentColor = MaterialTheme.colorScheme.primary
                         )
@@ -253,7 +253,13 @@ fun BlockScreen(
                     )
 
                     TextButton(
-                        onClick = { showAddWebsiteBottomSheet = true },
+                        onClick = { 
+                            if (isAccessibilityServiceEnabled(context, BlockAccessibility::class.java)) {
+                                showAddWebsiteBottomSheet = true 
+                            } else {
+                                showAccessibilityPermissionSheet = true
+                            }
+                        },
                         colors = ButtonDefaults.textButtonColors(
                             contentColor = MaterialTheme.colorScheme.primary
                         )

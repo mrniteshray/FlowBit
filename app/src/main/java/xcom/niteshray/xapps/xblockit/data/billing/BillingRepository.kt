@@ -22,14 +22,25 @@ object BillingRepository {
     private const val TAG = "BillingRepository"
     private const val API_KEY = "goog_faDOMUVRRjxNopHHRNdgDLViolc"
     const val ENTITLEMENT_ID = "FlowBit Pro"
+    private const val PREFS_NAME = "billing_prefs"
+    private const val KEY_IS_PREMIUM = "is_premium"
 
     private val _isPremium = MutableStateFlow(false)
     val isPremium: StateFlow<Boolean> = _isPremium.asStateFlow()
+    
+    // Hold weak reference to avoid leaks, though for Singleton/App it's less critical
+    private var appRef: java.lang.ref.WeakReference<Application>? = null
 
     // private var paywallLauncher: PaywallActivityLauncher? = null
 
     fun init(application: Application) {
-        Purchases.logLevel = LogLevel.DEBUG
+        appRef = java.lang.ref.WeakReference(application)
+        
+        // 1. IMPROVEMENT: Load cached state immediately to prevent UI flicker
+        val prefs = application.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+        _isPremium.value = prefs.getBoolean(KEY_IS_PREMIUM, false)
+        
+        Purchases.logLevel = LogLevel.WARN
         Purchases.configure(
             PurchasesConfiguration.Builder(
                 application,
@@ -75,6 +86,13 @@ object BillingRepository {
     fun updatePremiumState(customerInfo: CustomerInfo) {
         val isPro = customerInfo.entitlements[ENTITLEMENT_ID]?.isActive == true
         _isPremium.value = isPro
+        
+        // 2. IMPROVEMENT: Cache the state locally
+        appRef?.get()?.let { app ->
+            val prefs = app.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            prefs.edit().putBoolean(KEY_IS_PREMIUM, isPro).apply()
+        }
+        
         Log.d(TAG, "Updated premium state: $isPro")
     }
     
